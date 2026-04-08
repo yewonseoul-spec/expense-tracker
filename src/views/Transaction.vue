@@ -1,8 +1,4 @@
-<!-- 거래 내역 -->
+<!-- (거래 내역 상세페이지) -->
+<template></template>
 
-<template>
-    <div>거래 내역</div>
-</template>
-
-<script setup>
-</script>
+<script setup></script>
