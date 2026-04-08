@@ -1,8 +1,4 @@
-<!-- 거래 내역 -->
+<!-- 메인 대시보드 (캘린더) -->
+<template></template>
 
-<template>
-    <div>거래 내역</div>
-</template>
-
-<script setup>
-</script>
+<script setup></script>

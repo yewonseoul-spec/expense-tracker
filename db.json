@@ -1,0 +1,46 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "테스트",
+      "email": "test@test.com",
+      "password": "test1234"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "1",
+      "date": "2026-04-07",
+      "type": "income",
+      "categoryName": "용돈",
+      "amount": 50000,
+      "memo": "용돈"
+    },
+    {
+      "id": "2",
+      "date": "2026-04-07",
+      "type": "expense",
+      "categoryName": "식비",
+      "amount": 8000,
+      "memo": "국밥"
+    }
+  ],
+  "Categories": [
+    {
+      "id": "1",
+      "name": "월급",
+      "type": "income"
+    },
+    {
+      "id": "2",
+      "name": "식비",
+      "type": "expense"
+    },
+    {
+      "id": "3",
+      "name": "기타",
+      "type": "both"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
