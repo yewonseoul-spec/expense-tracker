@@ -2,11 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue';
 import Login from '@/views/Login.vue';
 import Register from '@/views/Register.vue';
-import Transaction from '@/views/Transaction.vue';
 import TransactionAdd from '@/views/TransactionAdd.vue';
 import TransactionEdit from '@/views/TransactionEdit.vue';
 import Settings from '@/views/Settings.vue';
 import TransactionCal from '@/views/TransactionCal.vue';
+import TransactionList from '@/views/TransactionList.vue';
 
 const publicRoutes = ['Login', 'Register'];
 
@@ -40,9 +40,9 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/transaction',
-      name: 'Transaction',
-      component: Transaction,
+      path: '/transactionlist',
+      name: 'TransactionList',
+      component: TransactionList,
       meta: { requiresAuth: true },
     },
     {
