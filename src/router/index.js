@@ -6,6 +6,7 @@ import Transaction from '@/views/Transaction.vue';
 import TransactionAdd from '@/views/TransactionAdd.vue';
 import TransactionEdit from '@/views/TransactionEdit.vue';
 import Settings from '@/views/Settings.vue';
+import TransactionCal from '@/views/TransactionCal.vue';
 
 const publicRoutes = ['Login', 'Register'];
 
@@ -33,6 +34,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/transactioncal',
+      name: 'TransactionCal',
+      component: TransactionCal,
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/transaction',
       name: 'Transaction',
       component: Transaction,
@@ -52,9 +59,20 @@ const router = createRouter({
     },
     {
       path: '/settings',
-      name: 'Settings',
-      component: Settings,
-      meta: { requiresAuth: true },
+      component: () => import('@/components/SettingsLayout.vue'),
+      redirect: '/settings/profile',
+      children: [
+        {
+          path: 'profile',
+          name: 'UserProfile',
+          component: () => import('@/views/UserProfile.vue'),
+        },
+        {
+          path: 'app',
+          name: 'AppSettings',
+          component: () => import('@/views/AppSettings.vue'),
+        },
+      ],
     },
   ],
 });

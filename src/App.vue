@@ -6,7 +6,8 @@
     </main>
 
     <!-- ── 하단 고정: 거래 추가 버튼 ── -->
-    <RouterLink v-if="route.name !== 'TransactionAdd' && route.name !== 'Login' && route.name !== 'Register'" to="/transaction/add" class="fab">
+    <RouterLink v-if="route.name !== 'TransactionAdd' && route.name !== 'Login' && route.name !== 'Register'"
+      to="/transaction/add" class="fab">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor" />
       </svg>

@@ -14,14 +14,10 @@
 
     <!-- 폼 + 삭제 버튼 -->
     <div v-else class="form-wrapper">
-      <TransactionForm
-        :edit-data="transaction"
-        @close="goBack"
-        @saved="goBack"
-      />
+      <TransactionForm :edit-data="transaction" @close="goBack" @saved="goBack" />
       <button class="btn-delete" @click="confirmDelete">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/>
+          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor" />
         </svg>
         이 거래 삭제
       </button>
@@ -138,11 +134,15 @@ const confirmDelete = async () => {
 .spinner-lg {
   width: 36px;
   height: 36px;
-  border: 3px solid rgba(255,255,255,0.3);
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-top-color: #ffffff;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>

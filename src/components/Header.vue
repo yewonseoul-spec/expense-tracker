@@ -6,14 +6,7 @@
         <div class="brand-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <rect width="24" height="24" rx="6" fill="transparent" />
-            <text
-              x="12"
-              y="17"
-              text-anchor="middle"
-              font-size="14"
-              fill="white"
-              font-weight="800"
-            >
+            <text x="12" y="17" text-anchor="middle" font-size="14" fill="white" font-weight="800">
               ₩
             </text>
           </svg>
@@ -25,10 +18,7 @@
       <div class="date-selector">
         <button class="arrow-btn" @click="store.prevMonth()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"
-              fill="currentColor"
-            />
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" fill="currentColor" />
           </svg>
         </button>
 
@@ -36,18 +26,14 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path
               d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"
-              fill="currentColor"
-            />
+              fill="currentColor" />
           </svg>
           <span>{{ store.currentYear }}년 {{ store.currentMonth }}월</span>
         </button>
 
         <button class="arrow-btn" @click="store.nextMonth()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"
-              fill="currentColor"
-            />
+            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="currentColor" />
           </svg>
         </button>
       </div>
@@ -58,16 +44,14 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path
               d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"
-              fill="currentColor"
-            />
+              fill="currentColor" />
           </svg>
         </button>
         <RouterLink to="/settings" class="avatar-btn" title="프로필">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path
               d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
-              fill="currentColor"
-            />
+              fill="currentColor" />
           </svg>
         </RouterLink>
       </div>
@@ -76,27 +60,19 @@
     <!-- ── 네비게이션 탭 ── -->
     <nav class="header-nav">
       <div class="nav-inner">
-        <RouterLink
-          to="/Home"
-          class="nav-tab"
-          :class="{ 'nav-tab--active': route.path === '/Home' }"
-        >
+        <RouterLink to="/Home" class="nav-tab" :class="{ 'nav-tab--active': route.path === '/Home' }">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
             <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="currentColor" />
           </svg>
           홈
         </RouterLink>
 
-        <RouterLink
-          to="/transaction"
-          class="nav-tab"
-          :class="{ 'nav-tab--active': route.path.startsWith('/transaction') }"
-        >
+        <RouterLink to="/transactioncal" class="nav-tab"
+          :class="{ 'nav-tab--active': route.path.startsWith('/transaction') }">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
             <path
               d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"
-              fill="currentColor"
-            />
+              fill="currentColor" />
           </svg>
           거래내역
         </RouterLink>

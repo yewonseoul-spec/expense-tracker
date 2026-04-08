@@ -5,6 +5,12 @@
       "name": "테스트",
       "email": "test@test.com",
       "password": "test1234"
+    },
+    {
+      "name": "홍길동",
+      "email": "exam@gmail.com",
+      "password": "aaaa1111",
+      "id": "TDymQJIqNlk"
     }
   ],
   "transactions": [
@@ -23,6 +29,16 @@
       "categoryName": "식비",
       "amount": 8000,
       "memo": "국밥"
+    },
+    {
+      "type": "income",
+      "amount": 5000,
+      "memo": "용돈",
+      "date": "2026-04-08",
+      "categoryName": "용돈",
+      "paymentMethod": "현금",
+      "note": "",
+      "id": "Gdrx3TgH3Mw"
     }
   ],
   "Categories": [
