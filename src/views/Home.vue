@@ -1,8 +1,4 @@
-<!-- 메인 대시보드 -->
+<!-- 메인 대시보드 (캘린더) -->
+<template></template>
 
-<template>
-    <div>홈 화면</div>
-</template>
-
-<script setup>
-</script>
+<script setup></script>
