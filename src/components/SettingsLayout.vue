@@ -1,8 +1,11 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 
 const route = useRoute();
 const router = useRouter();
+
+const userStore = useUserStore();
 
 const navigateTo = (path) => {
   router.push(path);
@@ -94,8 +97,9 @@ const navigateTo = (path) => {
           </div>
           <img
             class="profile-img"
-            src="https://placehold.co/52x52"
+            :src="userStore.profileImage"
             alt="Profile"
+            style="object-fit: cover"
           />
         </header>
 
