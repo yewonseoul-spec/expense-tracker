@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import axios from 'axios';
 
 export const useTransactionStore = defineStore('transaction', () => {
@@ -94,6 +94,68 @@ export const useTransactionStore = defineStore('transaction', () => {
     selectedDate.value = today.toISOString().slice(0, 10);
   };
 
+
+  ////////////
+  // 1. 달력에 들어갈 리스트(년-월 필요)
+  let userMonth = ref([])
+
+  function getMonthRange(year, month) {
+    const lastDay = new Date(year, month, 0).getDate();
+  
+    const start = `${year}-${String(month).padStart(2, '0')}-01`;
+    const end = `${year}-${String(month).padStart(2, '0')}-${lastDay}`;
+  
+    return { start, end };
+  }
+  
+  const getMonth = async(date, userId) => {
+    console.log(date + " " + userId);
+    
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+  
+    console.log(year + " " + month);
+    
+    const start = `${year}-${String(month).padStart(2, '0')}-01`;
+    const end = `${year}-${String(month).padStart(2, '0')}-31`;
+  
+    console.log(start);
+    console.log(end);
+    
+    const res = await axios.get('/api/transactions', {
+      params: {
+        // userId,
+        date_gte: start,
+        date_lte: end
+      }
+    });
+  console.log("===================");
+  
+    console.log(res.data);
+    
+    userMonth.value = res.data; 
+    console.log(userMonth.value);
+    
+  }
+
+  // 2. 달력에서 클릭했을 때 해당 날짜에 해당하는 거래 리스트(년-월-일 필요)
+  let userData = ref([]);
+  const getDate = async(date, userId) => {
+    // http://localhost:3000/transactions?userId=1&date=2026-04-01
+    const URL="/api/transactions";
+
+    let response = await axios.get(URL, {
+      params: {
+        // userId: userId,   // 👈 문자열로 보내기
+        date: date
+      }});
+    console.log(response.data);
+    userData.value = response.data;
+  }
+
+
+  
+  ///////////
   return {
     transactions,
     categories,
@@ -110,5 +172,9 @@ export const useTransactionStore = defineStore('transaction', () => {
     prevMonth,
     nextMonth,
     goToday,
+    userData,
+    getDate, 
+    getMonth,
+    userMonth
   };
 });

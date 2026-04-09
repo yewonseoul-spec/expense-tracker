@@ -18,6 +18,7 @@
       </svg>
       <span>새 거래 추가</span>
     </RouterLink>
+
   </div>
 </template>
 
