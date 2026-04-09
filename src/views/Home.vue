@@ -200,7 +200,52 @@ const chartOptions = {
   },
 };
 
-const isModalOpen = ref(false);
+const transactions = ref([
+  {
+    id: 1,
+    title: '점심',
+    date: '2026-03-23',
+    type: 'expense',
+    categoryName: '식비',
+    amount: -8000,
+    paymethod: '신용카드',
+    memo: '',
+  },
+  {
+    id: 2,
+    title: '필기구 구입',
+    date: '2026-04-03',
+    type: 'expense',
+    categoryName: '공부',
+    amount: -1500,
+    paymethod: '현금',
+    memo: '',
+  },
+  {
+    id: 3,
+    title: '급여',
+    date: '2026-04-10',
+    type: 'income',
+    categoryName: '수입',
+    amount: 500000,
+    paymethod: '은행',
+    memo: '',
+  },
+]);
+
+// 초기값 데이터
+const newInput = ref({
+  title: '',
+  amount: null,
+  type: 'expense',
+  categoryName: '식비',
+  paymethod: '신용카드',
+  memo: '',
+});
+
+const openModal = () => {
+  isModalOpen.value = true;
+};
 </script>
 
 <style scoped>

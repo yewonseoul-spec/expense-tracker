@@ -149,7 +149,7 @@ const handleLogin = async () => {
   border-radius: 20px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   overflow: hidden;
 }
 
@@ -158,15 +158,15 @@ const handleLogin = async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 32px 32px;
+  padding: 40px 32px 30px;
   gap: 12px;
 }
 
 .logo-icon {
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-  border-radius: 14px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -174,7 +174,7 @@ const handleLogin = async () => {
 }
 
 .logo-icon span {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 800;
   color: #ffffff;
 }
@@ -203,7 +203,7 @@ const handleLogin = async () => {
 
 /* ── 폼 본문 ── */
 .login-body {
-  padding: 28px 32px;
+  padding: 24px 32px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -328,7 +328,7 @@ const handleLogin = async () => {
 /* ── 로그인 버튼 ── */
 .login-btn {
   width: 100%;
-  padding: 14px;
+  padding: 13px;
   background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: #ffffff;
   font-size: 15px;
@@ -356,7 +356,7 @@ const handleLogin = async () => {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 20px 32px 28px;
+  padding: 18px 32px 28px;
 }
 
 .signup-text {

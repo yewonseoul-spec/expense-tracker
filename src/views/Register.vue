@@ -177,7 +177,7 @@ const handleRegister = async () => {
   border-radius: 20px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   overflow: hidden;
 }
 
@@ -185,7 +185,7 @@ const handleRegister = async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 36px 32px 28px;
+  padding: 36px 32px 24px;
   gap: 8px;
 }
 
@@ -240,7 +240,7 @@ const handleRegister = async () => {
 }
 
 .register-body {
-  padding: 24px 32px 28px;
+  padding: 22px 32px 26px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -320,7 +320,7 @@ const handleRegister = async () => {
 
 .register-btn {
   width: 100%;
-  padding: 14px;
+  padding: 13px;
   background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: #ffffff;
   font-size: 15px;
@@ -347,7 +347,7 @@ const handleRegister = async () => {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 20px 32px 28px;
+  padding: 18px 32px 28px;
 }
 
 .login-text {

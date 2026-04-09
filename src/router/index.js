@@ -4,7 +4,6 @@ import Login from '@/views/Login.vue';
 import Register from '@/views/Register.vue';
 import TransactionAdd from '@/views/TransactionAdd.vue';
 import TransactionEdit from '@/views/TransactionEdit.vue';
-import Settings from '@/views/Settings.vue';
 import TransactionCal from '@/views/TransactionCal.vue';
 import TransactionList from '@/views/TransactionList.vue';
 
