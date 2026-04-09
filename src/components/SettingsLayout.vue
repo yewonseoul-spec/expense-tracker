@@ -1,10 +1,29 @@
+<script setup>
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
+
+const navigateTo = (path) => {
+  router.push(path);
+};
+</script>
+
 <template>
   <div class="settings-layout">
     <div class="layout-wrapper">
       <aside class="sidebar">
-        <div class="menu-item active">
-          <div class="active-bg"></div>
-          <div class="icon-dashboard">
+        <div class="menu-item" @click="navigateTo('/settings/profile')">
+          <div
+            v-if="route.path.includes('/settings/profile')"
+            class="active-bg"
+          ></div>
+          <div
+            class="icon-dashboard"
+            :style="{
+              opacity: route.path.includes('/settings/profile') ? 1 : 0.2,
+            }"
+          >
             <svg viewBox="0 0 24 24" fill="none">
               <path
                 d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
@@ -40,8 +59,15 @@
           </div>
         </div>
 
-        <div class="menu-item">
-          <div class="icon-settings">
+        <div class="menu-item" @click="navigateTo('/settings/app')">
+          <div
+            v-if="route.path.includes('/settings/app')"
+            class="active-bg"
+          ></div>
+          <div
+            class="icon-settings"
+            :style="{ opacity: route.path.includes('/settings/app') ? 1 : 0.2 }"
+          >
             <svg viewBox="0 0 24 24" fill="none">
               <path
                 fill-rule="evenodd"
@@ -57,34 +83,6 @@
               />
             </svg>
           </div>
-        </div>
-
-        <div class="spacer"></div>
-
-        <div class="menu-item icon-dashboard">
-          <svg viewBox="0 0 24 24" fill="none">
-            <path
-              d="M21 12L13 12"
-              stroke="#323232"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M18 15L20.913 12.087V12.087C20.961 12.039 20.961 11.961 20.913 11.913V11.913L18 9"
-              stroke="#323232"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M16 5V4.5V4.5C16 3.67157 15.3284 3 14.5 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H14.5C15.3284 21 16 20.3284 16 19.5V19.5V19"
-              stroke="#323232"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
         </div>
       </aside>
 
@@ -191,12 +189,6 @@
   position: relative;
   width: 24px;
   height: 24px;
-  opacity: 0.2;
-}
-
-/* 로그아웃 아이콘을 맨 아래로 밀어내기 */
-.spacer {
-  flex-grow: 1;
 }
 
 /* 우측 메인 콘텐츠 영역 */
