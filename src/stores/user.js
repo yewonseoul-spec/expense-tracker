@@ -15,6 +15,10 @@ export const useUserStore = defineStore('user', () => {
     timezone: 'KST / UTC+09:00',
   });
 
+  const profileImage = ref(
+    localStorage.getItem('userProfileImage') || 'https://placehold.co/100x100',
+  );
+
   // 프로필 이미지 변경 액션
   const updateProfileImage = (base64String) => {
     profileImage.value = base64String;
@@ -23,7 +27,6 @@ export const useUserStore = defineStore('user', () => {
 
   return {
     userInfo,
-    updateProfile,
     profileImage,
     updateProfileImage,
   };

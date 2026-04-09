@@ -5,9 +5,9 @@
       "name": "테스트",
       "email": "test@test.com",
       "password": "test1234",
-      "nickname": "test",
-      "gender": "테스트성별",
-      "timeZone": "KST / UTC+09:00"
+      "nickname": "",
+      "gender": "여성",
+      "timezone": "KST / UTC+09:00"
     },
     {
       "name": "홍길동",
@@ -16,7 +16,7 @@
       "id": "TDymQJIqNlk",
       "nickname": "닌자",
       "gender": "남성",
-      "timeZone": "KST / UTC+09:00"
+      "timezone": "KST / UTC+09:00"
     }
   ],
   "transactions": [
