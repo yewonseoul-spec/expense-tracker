@@ -1,4 +1,11 @@
 <!-- (거래 내역 상세페이지) -->
-<template></template>
+<template>
+    <div>
+        <TransactionDetail></TransactionDetail>
+    </div>
+</template>
 
-<script setup></script>
+<script setup>
+import TransactionDetail from '@/components/TransactionDetail.vue';
+
+</script>
