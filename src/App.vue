@@ -1,12 +1,17 @@
 <template>
   <div id="app">
     <Header v-if="route.name !== 'Login' && route.name !== 'Register'" />
+    <!-- 이전 페이지 배경: 새 거래 추가 오버레이 시 -->
+    <div v-if="bgComponent" class="cal-background">
+      <component :is="bgComponent" />
+    </div>
+
     <main class="main-content" :class="{ 'main-content--full': route.name === 'Login' }">
       <RouterView />
     </main>
 
     <!-- ── 하단 고정: 거래 추가 버튼 ── -->
-    <RouterLink v-if="route.name !== 'TransactionAdd' && route.name !== 'Login' && route.name !== 'Register'"
+    <RouterLink v-if="route.name !== 'TransactionAdd' && route.name !== 'Login' && route.name !== 'Register' && !route.path.startsWith('/settings')"
       to="/transaction/add" class="fab">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor" />
@@ -18,10 +23,29 @@
 </template>
 
 <script setup>
+import { ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Header from './components/Header.vue';
+import TransactionCal from './views/TransactionCal.vue';
+import Home from './views/Home.vue';
 
 const route = useRoute();
+
+const backgroundRouteMap = {
+  TransactionCal,
+  Home,
+};
+
+const prevRouteName = ref(null);
+watch(() => route.name, (newName, oldName) => {
+  if (newName === 'TransactionAdd') {
+    prevRouteName.value = oldName;
+  }
+});
+
+const bgComponent = computed(() =>
+  route.name === 'TransactionAdd' ? backgroundRouteMap[prevRouteName.value] ?? null : null
+);
 </script>
 
 <style>
@@ -50,6 +74,13 @@ body {
 
 .main-content--full {
   padding-bottom: 0;
+}
+
+/* ── 캘린더 배경 (새 거래 추가 오버레이 시) ── */
+.cal-background {
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
 }
 
 /* ── 하단 고정 버튼 (FAB) ── */

@@ -4,13 +4,19 @@
       "id": "1",
       "name": "테스트",
       "email": "test@test.com",
-      "password": "test1234"
+      "password": "test1234",
+      "nickname": "",
+      "gender": "여성",
+      "timezone": "KST / UTC+09:00"
     },
     {
       "name": "홍길동",
       "email": "exam@gmail.com",
       "password": "aaaa1111",
-      "id": "TDymQJIqNlk"
+      "id": "TDymQJIqNlk",
+      "nickname": "닌자",
+      "gender": "남성",
+      "timezone": "KST / UTC+09:00"
     }
   ],
   "transactions": [
