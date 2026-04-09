@@ -14,14 +14,14 @@
         <div class="card summary-card">
           <p class="summary-label">총 지출</p>
           <p class="summary-value negative">
-            {{ totalExpense.toLocaleString() }}
+            -{{ totalExpense.toLocaleString() }}
           </p>
         </div>
         <!-- 순수익 -->
         <div class="card summary-card">
           <p class="summary-label">순수익</p>
           <p class="summary-value">
-            {{ (totalIncome + totalExpense).toLocaleString() }}
+            {{ (totalIncome - totalExpense).toLocaleString() }}
           </p>
         </div>
       </section>
@@ -45,10 +45,16 @@
       <section class="card">
         <h3 class="section-title">최근 거래내역</h3>
         <div class="text-list">
-          <div v-for="text in transactions" :key="text.id" class="text-item">
+          <div
+            v-for="text in filteredTransactions"
+            :key="text.id"
+            class="text-item"
+          >
             <div class="text-left">
-              <div :class="['icon-circle', text.amount < 0 ? 'out' : 'in']">
-                {{ text.amount < 0 ? '↘' : '↗' }}
+              <div
+                :class="['icon-circle', text.type === 'income' ? 'in' : 'out']"
+              >
+                {{ text.type === 'income' ? '↗' : '↘' }}
               </div>
               <div>
                 <p class="text-title">{{ text.title }}</p>
@@ -59,13 +65,13 @@
               <p
                 :class="[
                   'text-amount',
-                  text.amount < 0 ? 'negative' : 'positive',
+                  text.type === 'income' ? 'positive' : 'negative',
                 ]"
               >
-                {{ text.amount < 0 ? '' : '+' }}
+                {{ text.type === 'income' ? '+' : '-' }}
                 {{ text.amount.toLocaleString() }}
               </p>
-              <!-- 나중에 카테고리 배지 표현 추가 -->
+              <!-- 나중에 카테고리 - 배지 표현 추가 -->
               <!-- <span :class="['status-badge', text.status.toLowerCase()]">{{
                 text.status
               }}</span> -->
@@ -75,47 +81,40 @@
       </section>
     </div>
   </div>
-
-  <!-- 빠른 추가 버튼 -->
-  <button @click="openModal" class="add">+</button>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useTransactionStore } from '@/stores/transactionStore'; // Header 날짜 가져오기
+import { ref, computed, onMounted, watch } from 'vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
+import { useTransactionStore } from '@/stores/transactionStore';
 
-//
-// 날짜 필터링 기능
-//
+// Header의 년도, 월 가져와 날짜 필터 적용
 const store = useTransactionStore();
 
-// 1. 헤더 날짜에 맞춰 거래 내역 필터링
-const filteredTransactions = computed(() => {
-  const selected = store.selectedDate;
+const transactions = ref([]); // 배열 초기화
 
-  return transactions.value.filter((tx) => {
-    const txDate = new Date(tx.date);
-    return (
-      txDate.getFullYear() === selected.year &&
-      txDate.getMonth() + 1 === selected.month
-    );
-  });
+onMounted(() => {
+  store.fetchData();
 });
 
-// 2. 필터링된 날짜 데이터 적용
-// 총 수입 계산
-const totalIncome = computed(() =>
-  filteredTransactions.value
-    .filter((t) => t.amount > 0)
-    .reduce((acc, cur) => acc + cur.amount, 0),
+watch(
+  () => [store.currentYear, store.currentMonth],
+  () => {
+    store.fetchData(); // Header 날짜 변경 할 때마다 데이터 갱신
+  },
 );
 
-// 총 지출 계산
-const totalExpense = computed(() =>
-  filteredTransactions.value
-    .filter((t) => t.amount < 0)
-    .reduce((acc, cur) => acc + cur.amount, 0),
-);
+const totalIncome = computed(() => store.monthlyIncome); // 총 수입
+const totalExpense = computed(() => store.monthlyExpense); // 총 지출
+
+// 현재 월에 해당하는 거래 내역 필터링
+const filteredTransactions = computed(() => {
+  return store.transactions.filter((t) => {
+    const [y, m] = t.date.split('-').map(Number);
+    return y === store.currentYear && m === store.currentMonth;
+  });
+});
 
 //
 // 차트 등 기본설정
@@ -162,7 +161,7 @@ const chartData = computed(() => {
   };
 });
 
-// 차트 디자인 설정
+// 차트 설정 추가
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -187,39 +186,6 @@ const chartOptions = {
   },
 };
 
-const transactions = ref([
-  {
-    id: 1,
-    title: '점심',
-    date: '2026-03-23',
-    type: 'expense',
-    categoryName: '식비',
-    amount: -8000,
-    paymethod: '신용카드',
-    memo: '',
-  },
-  {
-    id: 2,
-    title: '필기구 구입',
-    date: '2026-04-03',
-    type: 'expense',
-    categoryName: '공부',
-    amount: -1500,
-    paymethod: '현금',
-    memo: '',
-  },
-  {
-    id: 3,
-    title: '급여',
-    date: '2026-04-10',
-    type: 'income',
-    categoryName: '수입',
-    amount: 500000,
-    paymethod: '은행',
-    memo: '',
-  },
-]);
-
 //
 // 빠른 추가 버튼(+) 모달 이벤트
 //
@@ -231,7 +197,7 @@ const newInput = ref({
   amount: null,
   type: 'expense',
   categoryName: '식비',
-  paymethod: '신용카드',
+  paymethods: '신용카드',
   memo: '',
 });
 
@@ -414,32 +380,5 @@ input:focus {
   background: #fdfdfd;
   border: 1px dashed #e5e7eb;
   border-radius: 12px;
-}
-
-/* 빠른 신규추가 버튼 */
-.add {
-  position: fixed;
-  bottom: 50px;
-  right: calc(50% - 580px);
-  width: 56px;
-  height: 56px;
-  background: #16a34a;
-  color: white;
-  border-radius: 50%;
-  font-size: 28px;
-  border: none;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  z-index: 100;
-}
-
-.add:hover {
-  transform: scale(1.1);
-}
-
-@media (max-width: 1250px) {
-  .add {
-    right: 30px;
-  }
 }
 </style>
