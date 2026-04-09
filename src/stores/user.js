@@ -15,10 +15,16 @@ export const useUserStore = defineStore('user', () => {
     timezone: 'KST / UTC+09:00',
   });
 
-  // 정보 업데이트 액션
-  const updateProfile = (newData) => {
-    userInfo.value = { ...userInfo.value, ...newData };
+  // 프로필 이미지 변경 액션
+  const updateProfileImage = (base64String) => {
+    profileImage.value = base64String;
+    localStorage.setItem('userProfileImage', base64String);
   };
 
-  return { userInfo, updateProfile };
+  return {
+    userInfo,
+    updateProfile,
+    profileImage,
+    updateProfileImage,
+  };
 });
