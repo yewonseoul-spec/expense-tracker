@@ -1,42 +1,37 @@
 <script setup>
-import { ref } from 'vue';
-import axios from 'axios';
+import { ref, onMounted, watch } from 'vue';
 import { useUserStore } from '@/stores/user';
 
 const userStore = useUserStore();
-
-// 현재 편집 모드 상태를 저장하는 플래그 (true: 편집중, false: 편집 X)
 const isEditing = ref(false);
-
-// (Pinia 원본 복사)
-const formData = ref({
-  name: userStore.userInfo.name,
-  nickname: userStore.userInfo.nickname,
-  gender: userStore.userInfo.gender || '남성',
-  email: userStore.userInfo.email,
-  timezone: userStore.userInfo.timezone || 'KST / UTC+09:00',
-});
-
-// 숨겨진 파일 input 태그에 접근하기 위한 ref
 const fileInputRef = ref(null);
+
+const formData = ref({ ...userStore.userInfo });
+
+watch(
+  () => userStore.userInfo,
+  (newVal) => {
+    formData.value = { ...newVal };
+  },
+  { deep: true },
+);
+
+onMounted(async () => {
+  await userStore.fetchUserInfo();
+});
 
 // --- 로직 (Functions) ---
 
-// 100x100 원형 영역 클릭 시, 사진 업로드 창 띄우기
 const triggerImageUpload = () => {
   fileInputRef.value.click();
 };
 
-// 파일 선택 완료 시 호출되는 함수
+// 이미지 파일 선택 완료 시 호출되는 함수
 const onImageSelected = (event) => {
   const file = event.target.files[0];
   if (file && file.type.startsWith('image/')) {
     const reader = new FileReader();
-
-    reader.onload = (e) => {
-      userStore.updateProfileImage(e.target.result);
-    };
-
+    reader.onload = (e) => userStore.updateProfileImage(e.target.result);
     reader.readAsDataURL(file);
   }
 };
@@ -44,50 +39,27 @@ const onImageSelected = (event) => {
 // 편집 모드 전환 & 취소 함수
 const toggleEditMode = () => {
   if (isEditing.value) {
-    // 편집 취소 시: 원본 데이터로 리셋
-    formData.value = {
-      name: userStore.userInfo.name,
-      nickname: userStore.userInfo.nickname,
-      gender: userStore.userInfo.gender || '남성',
-      email: userStore.userInfo.email,
-      timezone: userStore.userInfo.timezone || 'KST / UTC+09:00',
-    };
+    formData.value = { ...userStore.userInfo }; // 취소 시 DB 원본 복구
   }
   isEditing.value = !isEditing.value;
 };
 
 // '저장' 버튼 클릭 시 호출되는 함수
 const saveProfile = async () => {
-  try {
-    const userId = userStore.userInfo.id;
-    if (!userId) {
-      console.error('유저 ID를 찾을 수 없습니다.');
-      return;
-    }
+  const payload = {
+    name: formData.value.name,
+    nickname: formData.value.nickname,
+    gender: formData.value.gender,
+    email: formData.value.email,
+    timezone: formData.value.timezone,
+  };
 
-    // 서버에 전송할 데이터 가공
-    const payload = {
-      name: formData.value.name,
-      nickname: formData.value.nickname,
-      gender: formData.value.gender,
-      email: formData.value.email,
-      timezone: formData.value.timezone,
-    };
+  const isSuccess = await userStore.saveProfileToDB(payload);
 
-    // 유저 정보 업데이트
-    const response = await axios.patch(
-      `http://localhost:3000/users/${userId}`,
-      payload,
-    );
-
-    // 상태 업데이트 (성공 시)
-    userStore.updateProfile(response.data);
-
-    // 편집 모드 종료
+  if (isSuccess) {
     isEditing.value = false;
     alert('프로필 정보가 성공적으로 저장되었습니다.');
-  } catch (error) {
-    console.error('프로필 저장 중 오류 발생:', error);
+  } else {
     alert('정보 저장에 실패했습니다. 다시 시도해 주세요.');
   }
 };
