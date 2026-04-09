@@ -1,9 +1,15 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useTransactionStore } from '@/stores/transactionStore';
+
+const router = useRouter();
+const transactionStore = useTransactionStore();
 
 const currentDate = ref(new Date());
 const selectedDate = ref(null);
 
+// 카테고리 스타일
 const categories = {
   식사: { bg: '#fdecea', color: '#c62828' },
   교통: { bg: '#e3f2fd', color: '#1565c0' },
@@ -12,12 +18,46 @@ const categories = {
   고정비: { bg: '#ede7f6', color: '#5e35b1' },
 };
 
-const transactions = ref([
-  { date: '2026-04-08', title: '점심', amount: -9000, category: '식사' },
-  { date: '2026-04-08', title: '버스', amount: -1400, category: '교통' },
-  { date: '2026-04-05', title: '월급', amount: 3500000, category: '수입' },
-]);
+// ✅ 날짜 포맷 통일 함수 (핵심🔥)
+function formatToYYYYMMDD(dateInput) {
+  const d = new Date(dateInput);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
+// ✅ 월 데이터 가져오기
+onMounted(() => {
+  console.log(currentDate.value);
+
+  transactionStore.getMonth(currentDate.value, '1');
+});
+
+// ✅ 월 변경 시 다시 호출
+watch(currentDate, (newDate) => {
+  transactionStore.getMonth(newDate, '1');
+});
+
+// ✅ store 데이터
+const transactions = computed(() =>
+  Array.isArray(transactionStore.userMonth)
+    ? transactionStore.userMonth
+    : []
+);
+
+// ✅ 날짜별 그룹핑 (포맷 강제 통일)
+const transactionsByDate = computed(() => {
+  const map = {};
+
+  transactions.value.forEach((t) => {
+    const dateKey = formatToYYYYMMDD(t.date);
+
+    if (!map[dateKey]) map[dateKey] = [];
+    map[dateKey].push(t);
+  });
+
+  return map;
+});
+
+// 캘린더용 날짜 생성
 function formatDate(year, month, day) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
@@ -30,6 +70,7 @@ function getStartDay(year, month) {
   return new Date(year, month, 1).getDay();
 }
 
+// ✅ 캘린더 데이터
 const calendarDays = computed(() => {
   const year = currentDate.value.getFullYear();
   const month = currentDate.value.getMonth();
@@ -43,12 +84,17 @@ const calendarDays = computed(() => {
 
   for (let i = 1; i <= daysInMonth; i++) {
     const dateStr = formatDate(year, month, i);
-    const dayTransactions = transactions.value.filter(
-      (t) => t.date === dateStr,
-    );
-    const total = dayTransactions.reduce((sum, t) => sum + t.amount, 0);
 
-    days.push({ day: i, date: dateStr, transactions: dayTransactions, total });
+    const dayTransactions = transactionsByDate.value[dateStr] || [];
+
+    const total = dayTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
+
+    days.push({
+      day: i,
+      date: dateStr,
+      transactions: dayTransactions,
+      total,
+    });
   }
 
   while (days.length < 42) days.push(null);
@@ -56,77 +102,83 @@ const calendarDays = computed(() => {
   return days;
 });
 
+// 월 이동
 function prevMonth() {
   currentDate.value = new Date(
     currentDate.value.getFullYear(),
-    currentDate.value.getMonth() - 1,
+    currentDate.value.getMonth() - 1
   );
 }
 
 function nextMonth() {
   currentDate.value = new Date(
     currentDate.value.getFullYear(),
-    currentDate.value.getMonth() + 1,
+    currentDate.value.getMonth() + 1
   );
 }
 
-function selectDay(day) {
+// 날짜 클릭
+async function selectDay(day) {
   if (!day) return;
+
   selectedDate.value = day.date;
+
+  await transactionStore.getDate(day.date, '1');
+
+  router.push({
+    name: 'TransactionList',
+    params: { date: day.date }
+  });
 }
 </script>
 
 <template>
-  <div class="calendar">
-    <div class="header">
-      <button @click="prevMonth">◀</button>
-      <h2>
-        {{ currentDate.getFullYear() }}년 {{ currentDate.getMonth() + 1 }}월
-      </h2>
-      <button @click="nextMonth">▶</button>
-    </div>
+  <div>
+    <div class="calendar">
 
-    <div class="weekdays">
-      <div v-for="d in ['일', '월', '화', '수', '목', '금', '토']" :key="d">
-        {{ d }}
+      <div class="header">
+        <button @click="prevMonth">◀</button>
+        <h2>
+          {{ currentDate.getFullYear() }}년 {{ currentDate.getMonth() + 1 }}월
+        </h2>
+        <button @click="nextMonth">▶</button>
       </div>
-    </div>
 
-    <div class="grid">
-      <div
-        v-for="(day, index) in calendarDays"
-        :key="index"
-        class="cell"
-        :class="{ selected: selectedDate === day?.date }"
-        @click="selectDay(day)"
-      >
-        <div v-if="day">
-          <div class="date">{{ day.day }}</div>
+      <div class="weekdays">
+        <div v-for="d in ['일', '월', '화', '수', '목', '금', '토']" :key="d">
+          {{ d }}
+        </div>
+      </div>
 
-          <div
-            class="total"
-            :class="{ plus: day.total > 0, minus: day.total < 0 }"
-          >
-            {{ day.total !== 0 ? day.total.toLocaleString() : '' }}
-          </div>
+      <div class="grid">
+        <div v-for="(day, index) in calendarDays" :key="index" class="cell"
+          :class="{ selected: selectedDate === day?.date }" @click="selectDay(day)">
+          <div v-if="day">
+            <div class="date">{{ day.day }}</div>
 
-          <div class="items">
-            <div
-              v-for="(t, i) in day.transactions"
-              :key="i"
-              class="item"
-              :style="{
-                background: categories[t.category]?.bg,
-                color: categories[t.category]?.color,
-              }"
-            >
-              <span>{{ t.title }}</span>
-              <span>{{ t.amount.toLocaleString() }}</span>
+            <div class="total" :class="{ plus: day.total > 0, minus: day.total < 0 }">
+              {{ day.total !== 0 ? day.total.toLocaleString() : '' }}
             </div>
+
+            <div class="items">
+              <div v-for="(t, i) in day.transactions" :key="i" class="item" :style="{
+                background: categories[t.categoryName]?.bg,
+                color: categories[t.categoryName]?.color,
+              }">
+                <span>{{ t.categoryName }}</span>
+                <span>
+                  {{ t.amount > 0 ? '+' : '' }}{{ Number(t.amount).toLocaleString() }}
+                </span>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
+
     </div>
+
+    <router-view />
   </div>
 </template>
 

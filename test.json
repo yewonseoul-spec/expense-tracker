@@ -1,0 +1,78 @@
+{
+    "transactions": [
+      { "id": "1", "date": "2026-04-01", "type": "expense", "categoryName": "식비", "amount": 8500, "memo": "김밥", "userId": "1" },
+      { "id": "2", "date": "2026-04-01", "type": "expense", "categoryName": "교통", "amount": 1350, "memo": "버스", "userId": "1" },
+  
+      { "id": "3", "date": "2026-04-02", "type": "income", "categoryName": "용돈", "amount": 30000, "memo": "엄마", "userId": "1" },
+      { "id": "4", "date": "2026-04-02", "type": "expense", "categoryName": "카페", "amount": 4500, "memo": "커피", "userId": "1" },
+  
+      { "id": "5", "date": "2026-04-03", "type": "expense", "categoryName": "식비", "amount": 12000, "memo": "점심", "userId": "1" },
+  
+      { "id": "6", "date": "2026-04-04", "type": "income", "categoryName": "월급", "amount": 2000000, "memo": "급여", "userId": "1" },
+      { "id": "7", "date": "2026-04-04", "type": "expense", "categoryName": "고정비", "amount": 50000, "memo": "통신비", "userId": "1" },
+  
+      { "id": "8", "date": "2026-04-05", "type": "expense", "categoryName": "쇼핑", "amount": 32000, "memo": "옷", "userId": "1" },
+      { "id": "9", "date": "2026-04-05", "type": "expense", "categoryName": "카페", "amount": 6000, "memo": "디저트", "userId": "1" },
+  
+      { "id": "10", "date": "2026-04-06", "type": "expense", "categoryName": "교통", "amount": 1400, "memo": "지하철", "userId": "1" },
+  
+      { "id": "11", "date": "2026-04-07", "type": "income", "categoryName": "용돈", "amount": 50000, "memo": "용돈", "userId": "1" },
+      { "id": "12", "date": "2026-04-07", "type": "expense", "categoryName": "식비", "amount": 8000, "memo": "국밥", "userId": "1" },
+  
+      { "id": "13", "date": "2026-04-08", "type": "expense", "categoryName": "카페", "amount": 5500, "memo": "커피", "userId": "1" },
+      { "id": "14", "date": "2026-04-08", "type": "expense", "categoryName": "식비", "amount": 9000, "memo": "점심", "userId": "1" },
+  
+      { "id": "15", "date": "2026-04-09", "type": "expense", "categoryName": "식비", "amount": 11000, "memo": "저녁", "userId": "1" },
+  
+      { "id": "16", "date": "2026-04-10", "type": "income", "categoryName": "보너스", "amount": 100000, "memo": "보너스", "userId": "1" },
+  
+      { "id": "17", "date": "2026-04-11", "type": "expense", "categoryName": "쇼핑", "amount": 45000, "memo": "신발", "userId": "1" },
+  
+      { "id": "18", "date": "2026-04-12", "type": "expense", "categoryName": "교통", "amount": 1350, "memo": "버스", "userId": "1" },
+  
+      { "id": "19", "date": "2026-04-13", "type": "expense", "categoryName": "식비", "amount": 9500, "memo": "햄버거", "userId": "1" },
+  
+      { "id": "20", "date": "2026-04-14", "type": "expense", "categoryName": "카페", "amount": 5000, "memo": "아메리카노", "userId": "1" },
+  
+      { "id": "21", "date": "2026-04-15", "type": "income", "categoryName": "용돈", "amount": 20000, "memo": "용돈", "userId": "1" },
+  
+      { "id": "22", "date": "2026-04-16", "type": "expense", "categoryName": "식비", "amount": 13000, "memo": "치킨", "userId": "1" },
+  
+      { "id": "23", "date": "2026-04-17", "type": "expense", "categoryName": "카페", "amount": 4800, "memo": "라떼", "userId": "1" },
+  
+      { "id": "24", "date": "2026-04-18", "type": "expense", "categoryName": "쇼핑", "amount": 28000, "memo": "모자", "userId": "1" },
+  
+      { "id": "25", "date": "2026-04-19", "type": "expense", "categoryName": "교통", "amount": 1400, "memo": "지하철", "userId": "1" },
+  
+      { "id": "26", "date": "2026-04-20", "type": "income", "categoryName": "용돈", "amount": 15000, "memo": "용돈", "userId": "1" },
+  
+      { "id": "27", "date": "2026-04-21", "type": "expense", "categoryName": "식비", "amount": 10000, "memo": "분식", "userId": "1" },
+  
+      { "id": "28", "date": "2026-04-22", "type": "expense", "categoryName": "카페", "amount": 5200, "memo": "커피", "userId": "1" },
+  
+      { "id": "29", "date": "2026-04-23", "type": "expense", "categoryName": "쇼핑", "amount": 39000, "memo": "가방", "userId": "1" },
+  
+      { "id": "30", "date": "2026-04-24", "type": "expense", "categoryName": "식비", "amount": 14000, "memo": "외식", "userId": "1" },
+  
+      { "id": "31", "date": "2026-04-25", "type": "expense", "categoryName": "카페", "amount": 6000, "memo": "디저트", "userId": "1" },
+  
+      { "id": "32", "date": "2026-04-26", "type": "income", "categoryName": "용돈", "amount": 30000, "memo": "용돈", "userId": "1" },
+  
+      { "id": "33", "date": "2026-04-27", "type": "expense", "categoryName": "식비", "amount": 9000, "memo": "점심", "userId": "1" },
+  
+      { "id": "34", "date": "2026-04-28", "type": "expense", "categoryName": "교통", "amount": 1350, "memo": "버스", "userId": "1" },
+  
+      { "id": "35", "date": "2026-04-29", "type": "expense", "categoryName": "카페", "amount": 4500, "memo": "커피", "userId": "1" },
+  
+      { "id": "36", "date": "2026-04-30", "type": "expense", "categoryName": "식비", "amount": 12000, "memo": "저녁", "userId": "1" },
+  
+      { "id": "37", "date": "2026-05-01", "type": "expense", "categoryName": "식비", "amount": 9000, "memo": "라면", "userId": "1" },
+      { "id": "38", "date": "2026-05-01", "type": "expense", "categoryName": "교통", "amount": 1400, "memo": "지하철", "userId": "1" },
+  
+      { "id": "39", "date": "2026-05-02", "type": "income", "categoryName": "용돈", "amount": 20000, "memo": "용돈", "userId": "1" },
+  
+      { "id": "40", "date": "2026-05-03", "type": "expense", "categoryName": "카페", "amount": 5000, "memo": "커피", "userId": "1" }
+  
+      // 👉 이후도 같은 패턴으로 계속 추가하면 됨
+    ]
+  }

@@ -37,12 +37,13 @@ const router = createRouter({
       name: 'TransactionCal',
       component: TransactionCal,
       meta: { requiresAuth: true },
-    },
-    {
-      path: '/transactionlist',
-      name: 'TransactionList',
-      component: TransactionList,
-      meta: { requiresAuth: true },
+      children: [
+        {
+          path: 'list/:date',
+          name: 'TransactionList',
+          component: TransactionList,
+        },
+      ],
     },
     {
       path: '/transaction/add',
