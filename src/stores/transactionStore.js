@@ -1,90 +1,114 @@
 import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
 import axios from 'axios';
 
-export const useTransactionStore = defineStore('transaction', {
-  state: () => {
-    const now = new Date();
-    return {
-      transactions: [],
-      categories: [],
-      selectedDate: now.toISOString().slice(0, 10),
-      currentYear: now.getFullYear(),
-      currentMonth: now.getMonth() + 1,
-    };
-  },
-  getters: {
-    monthlyIncome: (state) =>
-      state.transactions
-        .filter((t) => {
-          const [y, m] = t.date.split('-').map(Number);
-          return (
-            y === state.currentYear &&
-            m === state.currentMonth &&
-            t.type === 'income'
-          );
-        })
-        .reduce((sum, t) => sum + Number(t.amount), 0),
-    monthlyExpense: (state) =>
-      state.transactions
-        .filter((t) => {
-          const [y, m] = t.date.split('-').map(Number);
-          return (
-            y === state.currentYear &&
-            m === state.currentMonth &&
-            t.type === 'expense'
-          );
-        })
-        .reduce((sum, t) => sum + Number(t.amount), 0),
-    selectedDateTransactions: (state) =>
-      state.transactions.filter((t) => t.date === state.selectedDate),
-  },
-  actions: {
-    async fetchData() {
-      try {
-        const [transRes, catRes] = await Promise.all([
-          axios.get('/api/transactions'),
-          axios.get('/api/Categories'),
-        ]);
-        this.transactions = transRes.data;
-        this.categories = catRes.data;
-      } catch (error) {
-        console.error('데이터 로딩 실패:', error);
-      }
-    },
-    async addTransaction(data) {
-      const res = await axios.post('/api/transactions', data);
-      this.transactions.push(res.data);
-    },
-    async updateTransaction(id, data) {
-      const res = await axios.put(`/api/transactions/${id}`, data);
-      const idx = this.transactions.findIndex((t) => t.id === id);
-      if (idx !== -1) this.transactions[idx] = res.data;
-    },
-    async deleteTransaction(id) {
-      await axios.delete(`/api/transactions/${id}`);
-      this.transactions = this.transactions.filter((t) => t.id !== id);
-    },
-    prevMonth() {
-      if (this.currentMonth === 1) {
-        this.currentYear--;
-        this.currentMonth = 12;
-      } else {
-        this.currentMonth--;
-      }
-    },
-    nextMonth() {
-      if (this.currentMonth === 12) {
-        this.currentYear++;
-        this.currentMonth = 1;
-      } else {
-        this.currentMonth++;
-      }
-    },
-    goToday() {
-      const now = new Date();
-      this.currentYear = now.getFullYear();
-      this.currentMonth = now.getMonth() + 1;
-      this.selectedDate = now.toISOString().slice(0, 10);
-    },
-  },
+export const useTransactionStore = defineStore('transaction', () => {
+  const now = new Date();
+  const transactions = ref([]);
+  const categories = ref([]);
+  const selectedDate = ref(now.toISOString().slice(0, 10));
+  const currentYear = ref(now.getFullYear());
+  const currentMonth = ref(now.getMonth() + 1);
+
+  const monthlyIncome = computed(() =>
+    transactions.value
+      .filter((t) => {
+        const [y, m] = t.date.split('-').map(Number);
+        return (
+          y === currentYear.value &&
+          m === currentMonth.value &&
+          t.type === 'income'
+        );
+      })
+      .reduce((sum, t) => sum + Number(t.amount), 0),
+  );
+
+  const monthlyExpense = computed(() =>
+    transactions.value
+      .filter((t) => {
+        const [y, m] = t.date.split('-').map(Number);
+        return (
+          y === currentYear.value &&
+          m === currentMonth.value &&
+          t.type === 'expense'
+        );
+      })
+      .reduce((sum, t) => sum + Number(t.amount), 0),
+  );
+
+  const selectedDateTransactions = computed(() =>
+    transactions.value.filter((t) => t.date === selectedDate.value),
+  );
+
+  const fetchData = async () => {
+    try {
+      const [transRes, catRes] = await Promise.all([
+        axios.get('/api/transactions'),
+        axios.get('/api/Categories'),
+      ]);
+      transactions.value = transRes.data;
+      categories.value = catRes.data;
+    } catch (error) {
+      console.error('데이터 로딩 실패:', error);
+    }
+  };
+
+  const addTransaction = async (data) => {
+    const res = await axios.post('/api/transactions', data);
+    transactions.value.push(res.data);
+  };
+
+  const updateTransaction = async (id, data) => {
+    const res = await axios.put(`/api/transactions/${id}`, data);
+    const idx = transactions.value.findIndex((t) => t.id === id);
+    if (idx !== -1) transactions.value[idx] = res.data;
+  };
+
+  const deleteTransaction = async (id) => {
+    await axios.delete(`/api/transactions/${id}`);
+    transactions.value = transactions.value.filter((t) => t.id !== id);
+  };
+
+  const prevMonth = () => {
+    if (currentMonth.value === 1) {
+      currentYear.value--;
+      currentMonth.value = 12;
+    } else {
+      currentMonth.value--;
+    }
+  };
+
+  const nextMonth = () => {
+    if (currentMonth.value === 12) {
+      currentYear.value++;
+      currentMonth.value = 1;
+    } else {
+      currentMonth.value++;
+    }
+  };
+
+  const goToday = () => {
+    const today = new Date();
+    currentYear.value = today.getFullYear();
+    currentMonth.value = today.getMonth() + 1;
+    selectedDate.value = today.toISOString().slice(0, 10);
+  };
+
+  return {
+    transactions,
+    categories,
+    selectedDate,
+    currentYear,
+    currentMonth,
+    monthlyIncome,
+    monthlyExpense,
+    selectedDateTransactions,
+    fetchData,
+    addTransaction,
+    updateTransaction,
+    deleteTransaction,
+    prevMonth,
+    nextMonth,
+    goToday,
+  };
 });
