@@ -7,21 +7,39 @@
         <div class="card summary-card">
           <p class="summary-label">총 수입</p>
           <p class="summary-value positive">
-            +{{ totalIncome.toLocaleString() }}
+            +{{
+              formatMoney(
+                totalIncome,
+                settingsStore.currency,
+                settingsStore.exchangeRate,
+              )
+            }}
           </p>
         </div>
         <!-- 총지출 -->
         <div class="card summary-card">
           <p class="summary-label">총 지출</p>
           <p class="summary-value negative">
-            -{{ totalExpense.toLocaleString() }}
+            -{{
+              formatMoney(
+                totalExpense,
+                settingsStore.currency,
+                settingsStore.exchangeRate,
+              )
+            }}
           </p>
         </div>
         <!-- 순수익 -->
         <div class="card summary-card">
           <p class="summary-label">순수익</p>
           <p class="summary-value">
-            {{ (totalIncome - totalExpense).toLocaleString() }}
+            {{
+              formatMoney(
+                totalIncome - totalExpense,
+                settingsStore.currency,
+                settingsStore.exchangeRate,
+              )
+            }}
           </p>
         </div>
       </section>
@@ -69,7 +87,15 @@
                 ]"
               >
                 {{ text.type === 'income' ? '+' : '-' }}
-                {{ text.amount.toLocaleString() }}
+                {{
+                  formatMoney(
+                    text.amount,
+                    settingsStore.currency,
+                    settingsStore.exchangeRate,
+                  )
+                }}
+
+                {{ text.amount < 0 ? '' : '+' }}
               </p>
               <!-- 나중에 카테고리 - 배지 표현 추가 -->
               <!-- <span :class="['status-badge', text.status.toLowerCase()]">{{
@@ -86,6 +112,11 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useTransactionStore } from '@/stores/transactionStore';
+import { useSettingsStore } from '@/stores/settings';
+import { formatMoney } from '@/utils/formatter';
+
+const settingsStore = useSettingsStore();
+
 import { Bar } from 'vue-chartjs';
 import {
   Chart as ChartJS,
@@ -193,9 +224,42 @@ const chartData = computed(() => {
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
-  plugins: { legend: { position: 'bottom' } },
+  plugins: {
+    legend: { position: 'bottom' },
+    tooltip: {
+      callbacks: {
+        label: function (context) {
+          let label = context.dataset.label || '';
+          if (label) {
+            label += ': ';
+          }
+          if (context.parsed.y !== null) {
+            label += formatMoney(
+              context.parsed.y,
+              settingsStore.currency,
+              settingsStore.exchangeRate,
+            );
+          }
+          return label;
+        },
+      },
+    },
+  },
   scales: {
-    y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
+    y: {
+      beginAtZero: true,
+      grid: { color: '#f3f4f6' },
+      ticks: {
+        callback: function (value) {
+          return formatMoney(
+            value,
+            settingsStore.currency,
+            settingsStore.exchangeRate,
+          );
+        },
+      },
+    },
+
     x: { grid: { display: false } },
   },
 };
