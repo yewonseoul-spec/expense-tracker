@@ -58,7 +58,7 @@
               </div>
               <div>
                 <p class="text-title">{{ text.title }}</p>
-                <p class="text-info">{{ text.date }} • {{ text.paymethod }}</p>
+                <p class="text-info">{{ text.date }}</p>
               </div>
             </div>
             <div class="text-right">
@@ -85,40 +85,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import axios from 'axios';
-import { useRouter } from 'vue-router';
 import { useTransactionStore } from '@/stores/transactionStore';
-
-// Header의 년도, 월 가져와 날짜 필터 적용
-const store = useTransactionStore();
-
-const transactions = ref([]); // 배열 초기화
-
-onMounted(() => {
-  store.fetchData();
-});
-
-watch(
-  () => [store.currentYear, store.currentMonth],
-  () => {
-    store.fetchData(); // Header 날짜 변경 할 때마다 데이터 갱신
-  },
-);
-
-const totalIncome = computed(() => store.monthlyIncome); // 총 수입
-const totalExpense = computed(() => store.monthlyExpense); // 총 지출
-
-// 현재 월에 해당하는 거래 내역 필터링
-const filteredTransactions = computed(() => {
-  return store.transactions.filter((t) => {
-    const [y, m] = t.date.split('-').map(Number);
-    return y === store.currentYear && m === store.currentMonth;
-  });
-});
-
-//
-// 차트 등 기본설정
-//
 import { Bar } from 'vue-chartjs';
 import {
   Chart as ChartJS,
@@ -128,10 +95,9 @@ import {
   BarElement,
   CategoryScale,
   LinearScale,
-  ArcElement,
 } from 'chart.js';
 
-// Chart.js 필수 요소 등록
+// Chart.js 등록
 ChartJS.register(
   Title,
   Tooltip,
@@ -139,71 +105,102 @@ ChartJS.register(
   BarElement,
   CategoryScale,
   LinearScale,
-  ArcElement,
 );
 
-// 차트 데이터 설정 (임시 데이터)
+const store = useTransactionStore();
+
+// 데이터 초기 로드
+onMounted(() => {
+  store.fetchData();
+});
+
+// 날짜 변경 감시
+watch(
+  () => [store.currentYear, store.currentMonth],
+  () => {
+    store.fetchData();
+  },
+);
+
+const totalIncome = computed(() => store.monthlyIncome || 0);
+const totalExpense = computed(() => store.monthlyExpense || 0);
+
+// 필터링된 내역
+const filteredTransactions = computed(() => {
+  if (!store.transactions) return [];
+  return store.transactions.filter((t) => {
+    const [y, m] = t.date.split('-').map(Number);
+    return y === store.currentYear && m === store.currentMonth;
+  });
+});
+
+// 차트 데이터 생성
 const chartData = computed(() => {
+  const monthCount = store.currentMonth; // 변수 정의 추가
+  const labels = [];
+  const targetMonths = [];
+  const incomeData = Array(monthCount).fill(0);
+  const expenseData = Array(monthCount).fill(0);
+
+  // 1월부터 현재 월까지 순서대로 생성
+  for (let i = 0; i < monthCount; i++) {
+    const d = new Date(store.currentYear, i, 1);
+    targetMonths.push(d);
+    labels.push(`${i + 1}월`);
+  }
+
+  // 데이터 합산 (store.transactions 직접 참조)
+  if (store.transactions) {
+    store.transactions.forEach((item) => {
+      const itemDate = new Date(item.date);
+      targetMonths.forEach((target, index) => {
+        if (
+          itemDate.getFullYear() === target.getFullYear() &&
+          itemDate.getMonth() === target.getMonth()
+        ) {
+          const amt = Number(item.amount);
+          if (item.type === 'income') {
+            // 수익인 경우
+            incomeData[index] += amt;
+          } else {
+            expenseData[index] += Math.abs(amt);
+          }
+        }
+      });
+    });
+  }
+
   return {
-    labels: ['1월', '2월', '3월', '4월'],
+    labels,
     datasets: [
       {
         label: '수입',
         backgroundColor: '#10b981',
-        data: [1500000, 200000, 800000, 1200000],
+        data: incomeData,
+        borderRadius: 3,
       },
       {
         label: '지출',
         backgroundColor: '#f43f5e',
-        data: [1000000, 310000, 750000, 2000000],
+        data: expenseData,
+        borderRadius: 3,
       },
     ],
   };
 });
 
-// 차트 설정 추가
+// 차트 옵션
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
-  plugins: {
-    legend: { position: 'bottom' },
-    tooltip: {
-      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-      titleColor: '#333',
-      bodyColor: '#666',
-      borderColor: '#e5e7eb',
-      borderWidth: 1,
-      padding: 10,
-      displayColors: true,
-    },
-  },
+  plugins: { legend: { position: 'bottom' } },
   scales: {
-    y: {
-      beginAtZero: true,
-      grid: { display: true, drawBorder: false, color: '#f3f4f6' },
-    },
+    y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
     x: { grid: { display: false } },
   },
 };
 
-//
-// 빠른 추가 버튼(+) 모달 이벤트
-//
 const isModalOpen = ref(false);
-
-// 초기값 데이터
-const newInput = ref({
-  title: '',
-  amount: null,
-  type: 'expense',
-  categoryName: '식비',
-  paymethods: '신용카드',
-  memo: '',
-});
-
-const openModal = () => {
-  isModalOpen.value = true;
-};
 </script>
 
 <style scoped>
@@ -249,7 +246,7 @@ const openModal = () => {
   justify-content: center;
   margin-bottom: 0;
 }
-
+/* section title */
 .section-title,
 .summary-label {
   font-size: 18px;
@@ -257,7 +254,7 @@ const openModal = () => {
   margin-bottom: 20px;
   color: #374151;
 }
-
+/* 총수익, 총지출, 순수익 금액 */
 .summary-value {
   font-size: 22px;
   font-weight: 800;
@@ -337,17 +334,20 @@ input:focus {
   color: #22c55e;
 }
 
+/* 최근 거래내역 */
+/* 내역명 */
 .text-title {
   font-weight: 700;
   color: #374151;
   margin: 0;
 }
+/* 거래일자 · 결제수단 */
 .text-info {
   font-size: 12px;
   color: #9ca3af;
   margin: 2px 0 0 0;
 }
-
+/* 금액 */
 .text-amount {
   font-weight: 700;
   font-size: 18px;
