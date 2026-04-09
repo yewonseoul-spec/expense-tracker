@@ -14,14 +14,14 @@
         <div class="card summary-card">
           <p class="summary-label">총 지출</p>
           <p class="summary-value negative">
-            {{ totalExpense.toLocaleString() }}
+            -{{ totalExpense.toLocaleString() }}
           </p>
         </div>
         <!-- 순수익 -->
         <div class="card summary-card">
           <p class="summary-label">순수익</p>
           <p class="summary-value">
-            {{ (totalIncome + totalExpense).toLocaleString() }}
+            {{ (totalIncome - totalExpense).toLocaleString() }}
           </p>
         </div>
       </section>
@@ -45,27 +45,33 @@
       <section class="card">
         <h3 class="section-title">최근 거래내역</h3>
         <div class="text-list">
-          <div v-for="text in transactions" :key="text.id" class="text-item">
+          <div
+            v-for="text in filteredTransactions"
+            :key="text.id"
+            class="text-item"
+          >
             <div class="text-left">
-              <div :class="['icon-circle', text.amount < 0 ? 'out' : 'in']">
-                {{ text.amount < 0 ? '↘' : '↗' }}
+              <div
+                :class="['icon-circle', text.type === 'income' ? 'in' : 'out']"
+              >
+                {{ text.type === 'income' ? '↗' : '↘' }}
               </div>
               <div>
                 <p class="text-title">{{ text.title }}</p>
-                <p class="text-info">{{ text.date }} • {{ text.paymethod }}</p>
+                <p class="text-info">{{ text.date }}</p>
               </div>
             </div>
             <div class="text-right">
               <p
                 :class="[
                   'text-amount',
-                  text.amount < 0 ? 'negative' : 'positive',
+                  text.type === 'income' ? 'positive' : 'negative',
                 ]"
               >
-                {{ text.amount < 0 ? '' : '+' }}
+                {{ text.type === 'income' ? '+' : '-' }}
                 {{ text.amount.toLocaleString() }}
               </p>
-              <!-- 나중에 카테고리 배지 표현 추가 -->
+              <!-- 나중에 카테고리 - 배지 표현 추가 -->
               <!-- <span :class="['status-badge', text.status.toLowerCase()]">{{
                 text.status
               }}</span> -->
@@ -78,45 +84,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useTransactionStore } from '@/stores/transactionStore'; // Header 날짜 가져오기
-
-//
-// 날짜 필터링 기능
-//
-const store = useTransactionStore();
-
-// 1. 헤더 날짜에 맞춰 거래 내역 필터링
-const filteredTransactions = computed(() => {
-  const selected = store.selectedDate;
-
-  return transactions.value.filter((tx) => {
-    const txDate = new Date(tx.date);
-    return (
-      txDate.getFullYear() === selected.year &&
-      txDate.getMonth() + 1 === selected.month
-    );
-  });
-});
-
-// 2. 필터링된 날짜 데이터 적용
-// 총 수입 계산
-const totalIncome = computed(() =>
-  filteredTransactions.value
-    .filter((t) => t.amount > 0)
-    .reduce((acc, cur) => acc + cur.amount, 0),
-);
-
-// 총 지출 계산
-const totalExpense = computed(() =>
-  filteredTransactions.value
-    .filter((t) => t.amount < 0)
-    .reduce((acc, cur) => acc + cur.amount, 0),
-);
-
-//
-// 차트 등 기본설정
-//
+import { ref, computed, onMounted, watch } from 'vue';
+import { useTransactionStore } from '@/stores/transactionStore';
 import { Bar } from 'vue-chartjs';
 import {
   Chart as ChartJS,
@@ -126,10 +95,9 @@ import {
   BarElement,
   CategoryScale,
   LinearScale,
-  ArcElement,
 } from 'chart.js';
 
-// Chart.js 필수 요소 등록
+// Chart.js 등록
 ChartJS.register(
   Title,
   Tooltip,
@@ -137,49 +105,97 @@ ChartJS.register(
   BarElement,
   CategoryScale,
   LinearScale,
-  ArcElement,
 );
 
-// 차트 데이터 설정 (임시 데이터)
+const store = useTransactionStore();
+
+// 데이터 초기 로드
+onMounted(() => {
+  store.fetchData();
+});
+
+// 날짜 변경 감시
+watch(
+  () => [store.currentYear, store.currentMonth],
+  () => {
+    store.fetchData();
+  },
+);
+
+const totalIncome = computed(() => store.monthlyIncome || 0);
+const totalExpense = computed(() => store.monthlyExpense || 0);
+
+// 필터링된 내역
+const filteredTransactions = computed(() => {
+  if (!store.transactions) return [];
+  return store.transactions.filter((t) => {
+    const [y, m] = t.date.split('-').map(Number);
+    return y === store.currentYear && m === store.currentMonth;
+  });
+});
+
+// 차트 데이터 생성
 const chartData = computed(() => {
+  const monthCount = store.currentMonth; // 변수 정의 추가
+  const labels = [];
+  const targetMonths = [];
+  const incomeData = Array(monthCount).fill(0);
+  const expenseData = Array(monthCount).fill(0);
+
+  // 1월부터 현재 월까지 순서대로 생성
+  for (let i = 0; i < monthCount; i++) {
+    const d = new Date(store.currentYear, i, 1);
+    targetMonths.push(d);
+    labels.push(`${i + 1}월`);
+  }
+
+  // 데이터 합산 (store.transactions 직접 참조)
+  if (store.transactions) {
+    store.transactions.forEach((item) => {
+      const itemDate = new Date(item.date);
+      targetMonths.forEach((target, index) => {
+        if (
+          itemDate.getFullYear() === target.getFullYear() &&
+          itemDate.getMonth() === target.getMonth()
+        ) {
+          const amt = Number(item.amount);
+          if (item.type === 'income') {
+            // 수익인 경우
+            incomeData[index] += amt;
+          } else {
+            expenseData[index] += Math.abs(amt);
+          }
+        }
+      });
+    });
+  }
+
   return {
-    labels: ['1월', '2월', '3월', '4월'],
+    labels,
     datasets: [
       {
         label: '수입',
         backgroundColor: '#10b981',
-        data: [1500000, 200000, 800000, 1200000],
+        data: incomeData,
+        borderRadius: 3,
       },
       {
         label: '지출',
         backgroundColor: '#f43f5e',
-        data: [1000000, 310000, 750000, 2000000],
+        data: expenseData,
+        borderRadius: 3,
       },
     ],
   };
 });
 
-// 차트 디자인 설정
+// 차트 옵션
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
-  plugins: {
-    legend: { position: 'bottom' },
-    tooltip: {
-      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-      titleColor: '#333',
-      bodyColor: '#666',
-      borderColor: '#e5e7eb',
-      borderWidth: 1,
-      padding: 10,
-      displayColors: true,
-    },
-  },
+  plugins: { legend: { position: 'bottom' } },
   scales: {
-    y: {
-      beginAtZero: true,
-      grid: { display: true, drawBorder: false, color: '#f3f4f6' },
-    },
+    y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
     x: { grid: { display: false } },
   },
 };
@@ -275,7 +291,7 @@ const openModal = () => {
   justify-content: center;
   margin-bottom: 0;
 }
-
+/* section title */
 .section-title,
 .summary-label {
   font-size: 18px;
@@ -283,7 +299,7 @@ const openModal = () => {
   margin-bottom: 20px;
   color: #374151;
 }
-
+/* 총수익, 총지출, 순수익 금액 */
 .summary-value {
   font-size: 22px;
   font-weight: 800;
@@ -363,17 +379,20 @@ input:focus {
   color: #22c55e;
 }
 
+/* 최근 거래내역 */
+/* 내역명 */
 .text-title {
   font-weight: 700;
   color: #374151;
   margin: 0;
 }
+/* 거래일자 · 결제수단 */
 .text-info {
   font-size: 12px;
   color: #9ca3af;
   margin: 2px 0 0 0;
 }
-
+/* 금액 */
 .text-amount {
   font-weight: 700;
   font-size: 18px;
@@ -406,32 +425,5 @@ input:focus {
   background: #fdfdfd;
   border: 1px dashed #e5e7eb;
   border-radius: 12px;
-}
-
-/* 빠른 신규추가 버튼 */
-.add {
-  position: fixed;
-  bottom: 50px;
-  right: calc(50% - 580px);
-  width: 56px;
-  height: 56px;
-  background: #16a34a;
-  color: white;
-  border-radius: 50%;
-  font-size: 28px;
-  border: none;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  z-index: 100;
-}
-
-.add:hover {
-  transform: scale(1.1);
-}
-
-@media (max-width: 1250px) {
-  .add {
-    right: 30px;
-  }
 }
 </style>
