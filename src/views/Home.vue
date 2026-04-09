@@ -75,9 +75,6 @@
       </section>
     </div>
   </div>
-
-  <!-- 빠른 추가 버튼 -->
-  <button @click="openModal" class="add">+</button>
 </template>
 
 <script setup>
@@ -219,11 +216,6 @@ const transactions = ref([
     memo: '',
   },
 ]);
-
-//
-// 빠른 추가 버튼(+) 모달 이벤트
-//
-const isModalOpen = ref(false);
 
 // 초기값 데이터
 const newInput = ref({
