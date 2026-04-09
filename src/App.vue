@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Header v-if="route.name !== 'Login'" />
+    <Header v-if="route.name !== 'Login' && route.name !== 'Register'" />
     <main class="main-content" :class="{ 'main-content--full': route.name === 'Login' }">
       <RouterView />
     </main>
