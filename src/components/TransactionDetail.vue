@@ -1,19 +1,16 @@
 <template>
     <div class="card" :class="t.type">
-
-        <!-- 상단 -->
         <div class="top">
             <div class="left">
-                <span class="icon">{{ getIcon(t.categoryName) }}</span>
-                <span class="category"
-                    :style="{ background: getCategoryColor(t.categoryName).bg, color: getCategoryColor(t.categoryName).color }">
+                <!-- 카테고리 아이콘 (달력과 동일) -->
+                <span class="icon">{{ icon }}</span>
+                <span class="category" :style="{ background: categoryColors.bg, color: categoryColors.color }">
                     {{ t.categoryName }}
                 </span>
             </div>
             <span class="date">{{ t.date }}</span>
         </div>
 
-        <!-- 금액 -->
         <div class="middle">
             <span class="amount" :class="t.type">
                 {{ t.type === 'income' ? '+' : '-' }}
@@ -21,44 +18,23 @@
             </span>
         </div>
 
-        <!-- 메모 -->
         <div class="bottom">
             {{ t.memo }}
         </div>
 
+        <div class="actions">
+            <button @click="$emit('edit', t)">수정</button>
+            <button @click="$emit('delete', t.id)">삭제</button>
+        </div>
     </div>
 </template>
 
 <script setup>
 const props = defineProps({
-    t: Object
+    t: Object,
+    categoryColors: Object,
+    icon: String
 });
-
-// 🔥 카테고리별 아이콘
-const getIcon = (category) => {
-    const icons = {
-        식사: "🍔",
-        교통: "🚌",
-        쇼핑: "🛍️",
-        수입: "💰",
-        고정비: "🏠",
-        용돈: "💵"
-    };
-    return icons[category] || "📌";
-};
-
-// 🔥 카테고리별 색상
-const getCategoryColor = (category) => {
-    const colors = {
-        식사: { bg: "#fdecea", color: "#c62828" },
-        교통: { bg: "#e3f2fd", color: "#1565c0" },
-        쇼핑: { bg: "#fff3e0", color: "#ef6c00" },
-        수입: { bg: "#e0f7ec", color: "#2e7d32" },
-        고정비: { bg: "#ede7f6", color: "#5e35b1" },
-        용돈: { bg: "#e8f5e9", color: "#2e7d32" }
-    };
-    return colors[category] || { bg: "#eee", color: "#333" };
-};
 </script>
 
 <style scoped>
@@ -77,7 +53,6 @@ const getCategoryColor = (category) => {
     transform: translateY(-4px);
 }
 
-/* 상단 */
 .top {
     display: flex;
     justify-content: space-between;
@@ -90,12 +65,11 @@ const getCategoryColor = (category) => {
     gap: 6px;
 }
 
-/* 아이콘 */
+/* 아이콘 크기 */
 .icon {
-    font-size: 18px;
+    font-size: 20px;
 }
 
-/* 카테고리 */
 .category {
     padding: 4px 10px;
     border-radius: 8px;
@@ -103,35 +77,58 @@ const getCategoryColor = (category) => {
     font-weight: bold;
 }
 
-/* 날짜 */
 .date {
     font-size: 12px;
     opacity: 0.6;
 }
 
-/* 금액 */
 .middle {
     font-size: 20px;
     font-weight: bold;
 }
 
-/* 🔥 수입 (강조) */
 .amount.income {
     color: #1b5e20;
 }
 
-/* 🔥 지출 (강조) */
 .amount.expense {
     color: #b71c1c;
 }
 
-/* 메모 */
 .bottom {
     font-size: 13px;
     color: #555;
 }
 
-/* 카드 배경 */
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.actions button {
+    padding: 4px 8px;
+    font-size: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.actions button:hover {
+    opacity: 0.8;
+}
+
+.actions button:first-child {
+    background-color: #0288d1;
+    color: white;
+}
+
+.actions button:last-child {
+    background-color: #d32f2f;
+    color: white;
+}
+
 .card.income {
     background: linear-gradient(135deg, #e8f5e9, #f1fff5);
 }
