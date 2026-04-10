@@ -14,7 +14,11 @@ const settingsStore = useSettingsStore();
         <div class="setting-item">
           <span class="setting-name">다크 모드</span>
           <label class="switch">
-            <input type="checkbox" />
+            <input
+              type="checkbox"
+              :checked="settingsStore.isDarkMode"
+              @change="settingsStore.toggleDarkMode()"
+            />
             <span class="slider"></span>
           </label>
         </div>

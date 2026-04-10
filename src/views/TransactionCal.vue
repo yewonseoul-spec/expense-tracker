@@ -239,8 +239,10 @@ async function handleDeleted(id) {
         :class="{ active: selectedCategories.includes(c.name) }"
         :style="{
           borderColor: c.color,
-          background: selectedCategories.includes(c.name) ? c.color : 'white',
-          color: selectedCategories.includes(c.name) ? 'white' : c.color,
+          background: selectedCategories.includes(c.name)
+            ? c.color
+            : 'transparent',
+          color: selectedCategories.includes(c.name) ? '#ffffff' : c.color,
         }"
       >
         {{ c.icon }} {{ c.name }}
@@ -351,6 +353,15 @@ async function handleDeleted(id) {
   display: flex;
   justify-content: space-between;
   margin: 30px 0 15px;
+  color: var(--text-primary);
+}
+
+.header button {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 18px;
 }
 
 .category-filter {
@@ -376,7 +387,7 @@ async function handleDeleted(id) {
 .weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  background: #3f8f73;
+  background: var(--color-success);
   color: white;
   text-align: center;
   padding: 10px 0;
@@ -389,19 +400,21 @@ async function handleDeleted(id) {
 }
 
 .cell {
-  border: 1px solid #eee;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-primary);
   padding: 5px;
   box-sizing: border-box;
   cursor: pointer;
 }
 
 .total.plus {
-  color: green;
+  color: var(--color-success);
   font-weight: 600;
 }
 
 .total.minus {
-  color: red;
+  color: var(--color-danger);
   font-weight: 600;
 }
 
@@ -433,7 +446,8 @@ async function handleDeleted(id) {
 }
 
 .list-box {
-  background-color: white;
+  background-color: var(--card-bg);
+  color: var(--text-primary);
   position: absolute;
   right: 0;
   top: 120px;
@@ -448,7 +462,7 @@ async function handleDeleted(id) {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  background: #33a17f;
+  background: var(--color-success);
   color: white;
   padding: 6px 10px;
   border-radius: 6px;
@@ -475,7 +489,7 @@ async function handleDeleted(id) {
   position: fixed;
   top: 10px;
   left: 10px;
-  background: #9e9e9e;
+  background: var(--text-secondary);
   color: white;
   border: none;
   border-radius: 6px;
@@ -512,5 +526,33 @@ async function handleDeleted(id) {
   gap: 12px;
   width: 100%;
   max-width: 480px;
+}
+
+/* 다크모드 전용 덮어쓰기 */
+html.dark .weekdays {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+html.dark .item {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid currentColor;
+  filter: brightness(2.5) saturate(1.2);
+
+  font-weight: 600;
+}
+
+html.dark .category-filter button {
+  filter: brightness(2);
+}
+
+html.dark .list-modal {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+html.dark .list-box {
+  border: 1px solid var(--border-color);
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.5);
 }
 </style>
