@@ -96,6 +96,28 @@ export const useUserStore = defineStore('user', () => {
     profileImage.value = 'https://placehold.co/100x100';
   };
 
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/users/${userInfo.value.id}`,
+      );
+      const user = res.data;
+
+      if (user.password !== currentPassword) {
+        return { success: false, message: '현재 비밀번호가 틀렸습니다.' };
+      }
+
+      await axios.patch(`http://localhost:3000/users/${userInfo.value.id}`, {
+        password: newPassword,
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('비밀번호 변경 API 실패:', error);
+      return { success: false, message: '서버 오류가 발생했습니다.' };
+    }
+  };
+
   return {
     userId,
     userInfo,
@@ -104,5 +126,6 @@ export const useUserStore = defineStore('user', () => {
     saveProfileToDB,
     updateProfileImage,
     reset,
+    changePassword,
   };
 });
