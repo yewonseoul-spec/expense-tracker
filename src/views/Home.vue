@@ -160,18 +160,20 @@ ChartJS.register(
   LinearScale,
 );
 
+const props = defineProps({ isBackground: Boolean });
+
 const store = useTransactionStore();
 
 // 데이터 초기 로드
 onMounted(() => {
-  store.fetchData();
+  if (!props.isBackground) store.fetchData();
 });
 
 // 날짜 변경 감시
 watch(
   () => [store.currentYear, store.currentMonth],
   () => {
-    store.fetchData();
+    if (!props.isBackground) store.fetchData();
   },
 );
 
