@@ -52,7 +52,7 @@ onMounted(async () => {
   }
 });
 
-const goBack = () => router.push('/Home');
+const goBack = () => router.back();
 
 const confirmDelete = async () => {
   if (!confirm('이 거래를 삭제할까요?')) return;
@@ -67,12 +67,17 @@ const confirmDelete = async () => {
 
 <style scoped>
 .form-page {
-  min-height: calc(100vh - 108px);
-  background: rgba(0, 0, 0, 0.3);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 16px 100px;
+  padding: 24px 16px;
+  z-index: 500;
 }
 
 .form-wrapper {

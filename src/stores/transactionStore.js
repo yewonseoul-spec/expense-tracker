@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, reactive } from 'vue';
 import axios from 'axios';
+import { useUserStore } from './user';
 
 export const useTransactionStore = defineStore('transaction', () => {
   const now = new Date();
@@ -46,7 +47,15 @@ export const useTransactionStore = defineStore('transaction', () => {
         axios.get('/api/transactions'),
         axios.get('/api/Categories'),
       ]);
-      transactions.value = transRes.data;
+      const userStore = useUserStore();
+      const userId = userStore.userInfo.id;
+      console.log('📊 fetchData 로그:', {
+        '가져온 거래 총 개수': transRes.data.length,
+        '현재 userId': userId,
+        '필터링된 거래': transRes.data.filter(t => t.userId === userId).length,
+      });
+      // 클라이언트 측에서 userId로 필터링
+      transactions.value = transRes.data.filter(t => t.userId === userId);
       categories.value = catRes.data;
     } catch (error) {
       console.error('데이터 로딩 실패:', error);
@@ -98,61 +107,26 @@ export const useTransactionStore = defineStore('transaction', () => {
   // 1. 달력에 들어갈 리스트(년-월 필요)
   let userMonth = ref([]);
 
-  function getMonthRange(year, month) {
-    const lastDay = new Date(year, month, 0).getDate();
-
-    const start = `${year}-${String(month).padStart(2, '0')}-01`;
-    const end = `${year}-${String(month).padStart(2, '0')}-${lastDay}`;
-
-    return { start, end };
-  }
-
   const getMonth = async (date, userId) => {
-    console.log(date + ' ' + userId);
-
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
 
-    console.log(year + ' ' + month);
+    const res = await axios.get('/api/transactions');
 
-    const start = `${year}-${String(month).padStart(2, '0')}-01`;
-    const end = `${year}-${String(month).padStart(2, '0')}-31`;
-
-    console.log(start);
-    console.log(end);
-
-    const res = await axios.get('/api/transactions', {
-      params: {
-        userId: parseInt(userId),
-        date_gte: start,
-        date_lte: end,
-      },
+    userMonth.value = res.data.filter((t) => {
+      if (t.userId !== userId) return false;
+      const [y, m] = t.date.split('-').map(Number);
+      return y === year && m === month;
     });
-    console.log('===================');
-
-    console.log(res.data);
-
-    userMonth.value = res.data;
-    console.log(userMonth.value);
   };
 
   // 2. 달력에서 클릭했을 때 해당 날짜에 해당하는 거래 리스트(년-월-일 필요)
   let userData = ref([]);
   const getDate = async (date, userId) => {
-    // http://localhost:3000/transactions?userId=1&date=2026-04-01
-    const URL = '/api/transactions';
-
-    let response = await axios.get(URL, {
-      params: {
-        userId:parseInt(userId),   
-        date: date
-      }});
-    console.log(response.data);
-    userData.value = response.data;
-    console.log("================");
-    
-    console.log(userData);
-    
+    const res = await axios.get('/api/transactions');
+    userData.value = res.data.filter(
+      (t) => t.userId === userId && t.date === date,
+    );
   };
 
   ///////////

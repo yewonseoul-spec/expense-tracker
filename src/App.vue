@@ -1,15 +1,16 @@
 <template>
   <div id="app">
     <Header v-if="route.name !== 'Login' && route.name !== 'Register'" />
-    <!-- 이전 페이지 배경: 새 거래 추가 오버레이 시 -->
-    <div v-if="bgComponent" class="cal-background">
-      <component :is="bgComponent" />
-    </div>
-
     <main
       class="main-content"
       :class="{ 'main-content--full': route.name === 'Login' }"
     >
+      <component
+        v-if="bgComponent"
+        :is="bgComponent"
+        class="cal-background"
+        :isBackground="true"
+      />
       <RouterView />
     </main>
 
@@ -33,16 +34,28 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { watch, onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import Header from './components/Header.vue';
-import TransactionCal from './views/TransactionCal.vue';
-import Home from './views/Home.vue';
 import { useSettingsStore } from '@/stores/settings';
+import Home from '@/views/Home.vue';
+import TransactionCal from '@/views/TransactionCal.vue';
 
 const route = useRoute();
-
 const settingsStore = useSettingsStore();
+
+const overlayRoutes = ['TransactionAdd', 'TransactionEdit'];
+
+const prevRouteName = ref(null);
+watch(() => route.name, (newName) => {
+  if (!overlayRoutes.includes(newName)) prevRouteName.value = newName;
+});
+
+const bgComponent = computed(() => {
+  if (!overlayRoutes.includes(route.name)) return null;
+  if (prevRouteName.value === 'TransactionCal') return TransactionCal;
+  return Home;
+});
 
 watch(
   () => settingsStore.isDarkMode,
@@ -56,27 +69,6 @@ watch(
   () => {
     updateTheme();
   },
-);
-
-const backgroundRouteMap = {
-  TransactionCal,
-  Home,
-};
-
-const prevRouteName = ref(null);
-watch(
-  () => route.name,
-  (newName, oldName) => {
-    if (newName === 'TransactionAdd') {
-      prevRouteName.value = oldName;
-    }
-  },
-);
-
-const bgComponent = computed(() =>
-  route.name === 'TransactionAdd'
-    ? (backgroundRouteMap[prevRouteName.value] ?? null)
-    : null,
 );
 
 // 다크모드 클래스를 <html>에 적용
