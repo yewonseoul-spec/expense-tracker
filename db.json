@@ -165,15 +165,6 @@
       "userId": "1"
     },
     {
-      "id": "21",
-      "date": "2026-04-15",
-      "type": "income",
-      "categoryName": "수입",
-      "amount": 20000,
-      "memo": "용돈",
-      "userId": "1"
-    },
-    {
       "id": "22",
       "date": "2026-04-16",
       "type": "expense",
@@ -234,15 +225,6 @@
       "categoryName": "쇼핑",
       "amount": 39000,
       "memo": "가방",
-      "userId": "1"
-    },
-    {
-      "id": "30",
-      "date": "2026-04-24",
-      "type": "expense",
-      "categoryName": "식비",
-      "amount": 14000,
-      "memo": "외식",
       "userId": "1"
     },
     {
@@ -343,6 +325,36 @@
       "amount": 5000,
       "memo": "주스",
       "userId": "1"
+    },
+    {
+      "type": "expense",
+      "amount": 4000,
+      "memo": "쿠키",
+      "date": "2026-04-09",
+      "categoryName": "카페·간식",
+      "paymentMethod": "신용카드",
+      "note": "",
+      "id": "MwizqCsyGHA"
+    },
+    {
+      "type": "expense",
+      "amount": 50000,
+      "memo": "공연",
+      "date": "2026-04-16",
+      "categoryName": "문화·여가",
+      "paymentMethod": "신용카드",
+      "note": "뮤지컬 예매",
+      "id": "ER5xm6n8zAo"
+    },
+    {
+      "type": "expense",
+      "amount": 5900,
+      "memo": "핫도그",
+      "date": "2026-04-16",
+      "categoryName": "카페·간식",
+      "paymentMethod": "체크카드",
+      "note": "간식",
+      "id": "xdF4HaBFrIM"
     }
   ],
   "Categories": [

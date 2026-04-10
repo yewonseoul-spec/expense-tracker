@@ -1,27 +1,31 @@
 <template>
     <div class="card" :class="t.type">
+        <!-- 상단: 아이콘 + 카테고리 + 날짜 -->
         <div class="top">
             <div class="left">
-                <!-- 카테고리 아이콘 (달력과 동일) -->
                 <span class="icon">{{ icon }}</span>
                 <span class="category" :style="{ background: categoryColors.bg, color: categoryColors.color }">
                     {{ t.categoryName }}
                 </span>
             </div>
-            <span class="date">{{ t.date }}</span>
+            <span class="date">{{ formatDate(t.date) }}</span>
         </div>
 
-        <div class="middle">
-            <span class="amount" :class="t.type">
-                {{ t.type === 'income' ? '+' : '-' }}
-                {{ Number(t.amount).toLocaleString() }}원
-            </span>
+        <!-- 메모 + 결제수단 (금액 바로 위) -->
+        <div class="info">
+            <div v-if="t.payment" class="payment">💳 {{ t.payment }}</div>
+            <div v-if="t.memo" class="memo">📝 {{ t.memo }}</div>
         </div>
 
-        <div class="bottom">
-            {{ t.memo }}
+        <!-- 내역 제목 -->
+        <div class="title">{{ t.title || '제목 없음' }}</div>
+
+        <!-- 금액 -->
+        <div class="amount" :class="t.type">
+            {{ t.type === 'income' ? '+' : '-' }}{{ Number(t.amount).toLocaleString() }}원
         </div>
 
+        <!-- 수정/삭제 버튼 -->
         <div class="actions">
             <button @click="$emit('edit', t)">수정</button>
             <button @click="$emit('delete', t.id)">삭제</button>
@@ -35,6 +39,11 @@ const props = defineProps({
     categoryColors: Object,
     icon: String
 });
+
+const formatDate = (dateStr) => {
+    const d = new Date(dateStr);
+    return `${d.getMonth() + 1}월 ${d.getDate()}일 (${d.getFullYear()})`;
+};
 </script>
 
 <style scoped>
@@ -45,7 +54,7 @@ const props = defineProps({
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     transition: all 0.2s ease;
 }
 
@@ -65,9 +74,8 @@ const props = defineProps({
     gap: 6px;
 }
 
-/* 아이콘 크기 */
 .icon {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .category {
@@ -82,9 +90,38 @@ const props = defineProps({
     opacity: 0.6;
 }
 
-.middle {
+.info {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    font-size: 12px;
+    color: #555;
+}
+
+.payment {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #555;
+}
+
+.memo {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #777;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.amount {
     font-size: 20px;
     font-weight: bold;
+    margin-top: 2px;
 }
 
 .amount.income {
@@ -95,15 +132,11 @@ const props = defineProps({
     color: #b71c1c;
 }
 
-.bottom {
-    font-size: 13px;
-    color: #555;
-}
-
 .actions {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
+    margin-top: 6px;
 }
 
 .actions button {
