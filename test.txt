@@ -1,0 +1,19 @@
+http://localhost:3000/transactions?date=2026-04-07&userId=1 할때 
+userId가 숫자인 경우에만 
+맥에서는 검색이 되어서
+새거래추가할 때 userId를 숫자로 변환해서 넣어주실 수 있을까요.
+
+db.json은 제가 임의로 {
+    "id": "13",
+    "date": "2026-04-07",
+    "type": "income",
+    "categoryName": "용돈",
+    "amount": 50000,
+    "memo": "부모님",
+    "paymentMethod": "계좌이체",
+    "userId": 1
+  }
+
+  이렇게 변경해서 테스트했습니다.
+
+  

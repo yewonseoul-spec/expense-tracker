@@ -123,7 +123,7 @@ export const useTransactionStore = defineStore('transaction', () => {
 
     const res = await axios.get('/api/transactions', {
       params: {
-        // userId,
+        userId: parseInt(userId),
         date_gte: start,
         date_lte: end,
       },
@@ -144,12 +144,15 @@ export const useTransactionStore = defineStore('transaction', () => {
 
     let response = await axios.get(URL, {
       params: {
-        // userId: userId,   // 👈 문자열로 보내기
-        date: date,
-      },
-    });
+        userId:parseInt(userId),   
+        date: date
+      }});
     console.log(response.data);
     userData.value = response.data;
+    console.log("================");
+    
+    console.log(userData);
+    
   };
 
   ///////////
