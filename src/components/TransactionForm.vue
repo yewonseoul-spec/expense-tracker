@@ -51,7 +51,7 @@
             : 'amount-section--income'
         "
       >
-        <span class="amount-currency">₩</span>
+        <span class="amount-currency">{{ currencySymbol }}</span>
         <input
           v-model.number="form.amount"
           type="number"
@@ -160,6 +160,10 @@
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
 import { useTransactionStore } from '@/stores/transactionStore';
+import { useSettingsStore } from '@/stores/settings';
+
+const settingsStore = useSettingsStore();
+const EXCHANGE_RATE = 1500;
 
 const props = defineProps({
   editData: { type: Object, default: null },
@@ -271,9 +275,15 @@ const handleSubmit = async () => {
 
   submitting.value = true;
   try {
+    let finalAmount = Number(form.amount);
+
+    if (settingsStore.currency === 'USD') {
+      finalAmount = finalAmount * settingsStore.exchangeRate;
+    }
+
     const data = {
       type: form.type,
-      amount: Number(form.amount),
+      amount: finalAmount,
       memo: form.memo.trim(),
       date: form.date,
       categoryName: form.categoryName,
@@ -292,6 +302,10 @@ const handleSubmit = async () => {
     submitting.value = false;
   }
 };
+
+const currencySymbol = computed(() => {
+  return settingsStore.currency === 'USD' ? '$' : '₩';
+});
 </script>
 
 <style scoped>
