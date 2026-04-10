@@ -25,7 +25,6 @@ const route = useRoute();
 
 const date = route.params.date;
 
-// 임시 카테고리 정의 (TransactionCal.vue와 동일)
 const categories = [
     { name: '수입', icon: '💰', bg: '#e8f5e9', color: '#2e7d32' },
     { name: '식비', icon: '🍔', bg: '#fdecea', color: '#c62828' },
@@ -42,35 +41,32 @@ const categories = [
 
 onMounted(() => transactionStore.getDate(date, '1'));
 
-// 모달 닫기
 const closeModal = () => router.push({ name: 'TransactionCal' });
 
-// 카테고리 색상
 const getCategory = (name) => {
     const c = categories.find(cat => cat.name === name);
     return c ? { bg: c.bg, color: c.color } : { bg: '#eee', color: '#333' };
 };
 
-// 카테고리 아이콘
 const getCategoryIcon = (name) => {
     const c = categories.find(cat => cat.name === name);
     return c ? c.icon : '📌';
 };
 
-// 날짜 표시
 const formattedDate = computed(() => {
     const d = new Date(date);
     return `${d.getMonth() + 1}월 ${d.getDate()}일 (${d.getFullYear()})`;
 });
 
-// 수정
-const editTransaction = (t) => router.push({ name: 'EditTransaction', params: { id: t.id } });
+const editTransaction = (t) =>
+    router.push({ name: 'EditTransaction', params: { id: t.id } });
 
-// 삭제 후 갱신
 const deleteTransaction = async (id) => {
     if (confirm('정말 삭제하시겠습니까?')) {
         await transactionStore.deleteTransaction(id);
         await transactionStore.getDate(date, '1');
+        await transactionStore.getMonth(getCurrentMonth(), '1');
+        // router.push("/transactioncal");
     }
 };
 </script>
@@ -87,27 +83,32 @@ const deleteTransaction = async (id) => {
     background-color: rgba(0, 0, 0, 0.4);
 }
 
+
 .box {
     background-color: white;
     position: absolute;
     right: 0;
-    top: 100px;
+    top: 120px;
     width: 500px;
-    min-height: 900px;
+    height: calc(100% - 70px);
     padding: 10px;
     border-radius: 10px;
     overflow-y: auto;
 }
 
+/* 🔥 날짜바 고정 */
 .heading {
+    position: sticky;
+    top: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: #33a17f;
     color: white;
-    padding: 8px 10px;
+    padding: 10px;
     border-radius: 6px;
     font-size: 16px;
+    z-index: 10;
 }
 
 .close-btn {
@@ -119,7 +120,5 @@ const deleteTransaction = async (id) => {
     font-size: 16px;
     cursor: pointer;
     color: #333;
-    line-height: 28px;
-    text-align: center;
 }
 </style>

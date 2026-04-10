@@ -1,11 +1,13 @@
 <script setup>
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router'; // ✅ 추가
 import { ref, computed, onMounted, watch } from 'vue';
 import { useTransactionStore } from '@/stores/transactionStore';
 import { useSettingsStore } from '@/stores/settings';
+import { useUserStore } from '@/stores/user';
 import { formatMoney } from '@/utils/formatter';
 
 const router = useRouter();
+const route = useRoute(); // ✅ 추가
 const transactionStore = useTransactionStore();
 const settingsStore = useSettingsStore();
 
@@ -61,8 +63,22 @@ function formatToYYYYMMDD(dateInput) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-onMounted(() => transactionStore.getMonth(currentDate.value, '1'));
-watch(currentDate, (newDate) => transactionStore.getMonth(newDate, '1'));
+
+const userStore = useUserStore();
+let userId = computed(() => userStore.userId);
+onMounted(() => transactionStore.getMonth(currentDate.value, userId));
+
+watch(currentDate, (newDate) => transactionStore.getMonth(newDate, userId));
+
+
+watch(
+  () => route.name,
+  (name) => {
+    if (name === 'TransactionCal') {
+      transactionStore.getMonth(currentDate.value, userId);
+    }
+  }
+);
 
 const transactions = computed(() =>
   Array.isArray(transactionStore.userMonth) ? transactionStore.userMonth : [],
@@ -142,7 +158,7 @@ function nextMonth() {
 
 async function selectDay(day) {
   if (!day) return;
-  await transactionStore.getDate(day.date, '1');
+  await transactionStore.getDate(day.date, userStore.userInfo.id);
   router.push({ name: 'TransactionList', params: { date: day.date } });
 }
 </script>
@@ -158,17 +174,12 @@ async function selectDay(day) {
     </div>
 
     <div class="category-filter">
-      <button
-        v-for="c in categoryList"
-        :key="c.name"
-        @click="toggleCategory(c.name)"
-        :class="{ active: selectedCategories.includes(c.name) }"
-        :style="{
+      <button v-for="c in categoryList" :key="c.name" @click="toggleCategory(c.name)"
+        :class="{ active: selectedCategories.includes(c.name) }" :style="{
           borderColor: c.color,
           background: selectedCategories.includes(c.name) ? c.color : 'white',
           color: selectedCategories.includes(c.name) ? 'white' : c.color,
-        }"
-      >
+        }">
         {{ c.icon }} {{ c.name }}
       </button>
     </div>
@@ -181,38 +192,25 @@ async function selectDay(day) {
       </div>
 
       <div class="grid">
-        <div
-          v-for="(day, index) in calendarDays"
-          :key="index"
-          class="cell"
-          @click="selectDay(day)"
-        >
+        <div v-for="(day, index) in calendarDays" :key="index" class="cell" @click="selectDay(day)">
           <div v-if="day">
             <div class="date">{{ day.day }}</div>
-            <div
-              class="total"
-              :class="{ plus: day.total > 0, minus: day.total < 0 }"
-            >
+            <div class="total" :class="{ plus: day.total > 0, minus: day.total < 0 }">
               {{
                 day.total !== 0
                   ? formatMoney(
-                      day.total,
-                      settingsStore.currency,
-                      settingsStore.exchangeRate,
-                    )
+                    day.total,
+                    settingsStore.currency,
+                    settingsStore.exchangeRate,
+                  )
                   : ''
               }}
             </div>
             <div class="items">
-              <div
-                v-for="(t, i) in day.transactions"
-                :key="i"
-                class="item"
-                :style="{
-                  background: categories[t.categoryName]?.bg,
-                  color: categories[t.categoryName]?.color,
-                }"
-              >
+              <div v-for="(t, i) in day.transactions" :key="i" class="item" :style="{
+                background: categories[t.categoryName]?.bg,
+                color: categories[t.categoryName]?.color,
+              }">
                 <span>{{ t.categoryName }}</span>
                 <span>{{
                   formatMoney(

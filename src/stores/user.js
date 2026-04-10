@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import axios from 'axios';
 
 export const useUserStore = defineStore('user', () => {
@@ -63,7 +63,9 @@ export const useUserStore = defineStore('user', () => {
     localStorage.setItem('userProfileImage', base64String);
   };
 
+  let userId = computed( () => userInfo.value.id)
   return {
+    userId,
     userInfo,
     profileImage,
     fetchUserInfo,

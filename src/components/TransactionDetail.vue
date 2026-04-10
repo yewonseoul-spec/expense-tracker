@@ -1,6 +1,6 @@
 <template>
     <div class="card" :class="t.type">
-        <!-- 상단: 아이콘 + 카테고리 + 날짜 -->
+        <!-- 상단 -->
         <div class="top">
             <div class="left">
                 <span class="icon">{{ icon }}</span>
@@ -8,24 +8,30 @@
                     {{ t.categoryName }}
                 </span>
             </div>
-            <span class="date">{{ formatDate(t.date) }}</span>
         </div>
 
-        <!-- 메모 + 결제수단 (금액 바로 위) -->
-        <div class="info">
-            <div v-if="t.payment" class="payment">💳 {{ t.payment }}</div>
-            <div v-if="t.memo" class="memo">📝 {{ t.memo }}</div>
+        <!-- 제목 (메모 우선) -->
+        <div class="title">
+            {{ t.memo || t.title || '제목 없음' }}
         </div>
-
-        <!-- 내역 제목 -->
-        <div class="title">{{ t.title || '제목 없음' }}</div>
 
         <!-- 금액 -->
         <div class="amount" :class="t.type">
-            {{ t.type === 'income' ? '+' : '-' }}{{ Number(t.amount).toLocaleString() }}원
+            {{ t.type === 'income' ? '+' : '-' }}
+            {{ Number(t.amount).toLocaleString() }}원
         </div>
 
-        <!-- 수정/삭제 버튼 -->
+        <!-- 결제수단 -->
+        <div v-if="t.paymentMethod" class="payment">
+            💳 {{ t.paymentMethod }}
+        </div>
+
+        <!-- 메모 (있을 때만) -->
+        <div v-if="t.note" class="memo">
+            {{ t.note }}
+        </div>
+
+        <!-- 버튼 -->
         <div class="actions">
             <button @click="$emit('edit', t)">수정</button>
             <button @click="$emit('delete', t.id)">삭제</button>
@@ -34,16 +40,11 @@
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
     t: Object,
     categoryColors: Object,
     icon: String
 });
-
-const formatDate = (dateStr) => {
-    const d = new Date(dateStr);
-    return `${d.getMonth() + 1}월 ${d.getDate()}일 (${d.getFullYear()})`;
-};
 </script>
 
 <style scoped>
@@ -54,14 +55,25 @@ const formatDate = (dateStr) => {
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    transition: all 0.2s ease;
+    gap: 10px;
+    transition: 0.2s;
 }
 
+/* 🔥 수입 / 지출 배경 */
+.card.income {
+    background: linear-gradient(135deg, #e8f5e9, #f1fff5);
+}
+
+.card.expense {
+    background: linear-gradient(135deg, #fdecea, #fff5f5);
+}
+
+/* hover */
 .card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
 }
 
+/* 상단 */
 .top {
     display: flex;
     justify-content: space-between;
@@ -85,43 +97,17 @@ const formatDate = (dateStr) => {
     font-weight: bold;
 }
 
-.date {
-    font-size: 12px;
-    opacity: 0.6;
-}
-
-.info {
-    display: flex;
-    flex-direction: row;
-    gap: 12px;
-    font-size: 12px;
-    color: #555;
-}
-
-.payment {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: #555;
-}
-
-.memo {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: #777;
-}
-
+/* 제목 */
 .title {
     font-size: 18px;
-    font-weight: 700;
-    margin-top: 4px;
+    font-weight: 800;
+    color: #111;
 }
 
+/* 금액 */
 .amount {
     font-size: 20px;
     font-weight: bold;
-    margin-top: 2px;
 }
 
 .amount.income {
@@ -132,6 +118,19 @@ const formatDate = (dateStr) => {
     color: #b71c1c;
 }
 
+/* 메모 */
+.memo {
+    font-size: 13px;
+    color: #555;
+}
+
+/* 결제수단 */
+.payment {
+    font-size: 12px;
+    color: #777;
+}
+
+/* 버튼 */
 .actions {
     display: flex;
     justify-content: flex-end;
@@ -140,33 +139,20 @@ const formatDate = (dateStr) => {
 }
 
 .actions button {
+    border: none;
     padding: 4px 8px;
     font-size: 12px;
-    border: none;
     border-radius: 6px;
     cursor: pointer;
-    transition: 0.2s;
-}
-
-.actions button:hover {
-    opacity: 0.8;
 }
 
 .actions button:first-child {
-    background-color: #0288d1;
+    background: #0288d1;
     color: white;
 }
 
 .actions button:last-child {
-    background-color: #d32f2f;
+    background: #d32f2f;
     color: white;
-}
-
-.card.income {
-    background: linear-gradient(135deg, #e8f5e9, #f1fff5);
-}
-
-.card.expense {
-    background: linear-gradient(135deg, #fdecea, #fff5f5);
 }
 </style>
