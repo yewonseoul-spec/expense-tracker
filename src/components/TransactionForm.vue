@@ -108,8 +108,8 @@
         {{ errors.categoryName }}
       </p>
 
-      <!-- 결제수단 -->
-      <div class="field-block">
+      <!-- 결제수단 (지출만) -->
+      <div v-if="form.type === 'expense'" class="field-block">
         <label class="field-label">결제수단</label>
         <div class="chip-group">
           <button
@@ -311,7 +311,7 @@ const currencySymbol = computed(() => {
 <style scoped>
 /* ── 카드 ── */
 .form-card {
-  background: #ffffff;
+  background: var(--card-bg);
   border-radius: 20px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
   width: 100%;
@@ -336,7 +336,7 @@ const currencySymbol = computed(() => {
 .form-title {
   font-size: 17px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -374,8 +374,8 @@ const currencySymbol = computed(() => {
 }
 
 .close-btn:hover {
-  background: #e5e7eb;
-  color: #111827;
+  filter: brightness(0.9);
+  color: var(--text-secondary);
 }
 
 /* ── 타입 탭 ── */
@@ -404,17 +404,17 @@ const currencySymbol = computed(() => {
 
 .type-btn--inactive {
   background: transparent;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 .type-btn--expense {
-  background: #ffffff;
-  color: #dc2626;
+  background: var(--card-bg);
+  color: var(--color-danger);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .type-btn--income {
-  background: #ffffff;
+  background: var(--card-bg);
   color: #16a34a;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
@@ -425,20 +425,20 @@ const currencySymbol = computed(() => {
   align-items: baseline;
   gap: 6px;
   padding: 20px 24px 16px;
-  border-bottom: 2px solid #f3f4f6;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .amount-section--expense {
-  border-bottom-color: #fecaca;
+  border-bottom-color: var(--color-danger);
 }
 .amount-section--income {
-  border-bottom-color: #bbf7d0;
+  border-bottom-color: var(--color-success);
 }
 
 .amount-currency {
   font-size: 22px;
   font-weight: 700;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 .amount-input {
@@ -447,14 +447,14 @@ const currencySymbol = computed(() => {
   outline: none;
   font-size: 32px;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-primary);
   text-align: right;
   background: transparent;
   letter-spacing: -1px;
 }
 
 .amount-input::placeholder {
-  color: #d1d5db;
+  color: var(--text-secondary);
 }
 
 .amount-input::-webkit-outer-spin-button,
@@ -471,7 +471,7 @@ const currencySymbol = computed(() => {
 .amount-unit {
   font-size: 16px;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--text-secondary);
 }
 
 /* ── 폼 본문 ── */
@@ -487,18 +487,18 @@ const currencySymbol = computed(() => {
   align-items: center;
   gap: 12px;
   padding: 10px 0;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .field-block {
   padding: 12px 0;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .field-label {
   font-size: 13px;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--text-secondary);
   white-space: nowrap;
   min-width: 52px;
 }
@@ -508,12 +508,12 @@ const currencySymbol = computed(() => {
   border: none;
   outline: none;
   font-size: 14px;
-  color: #111827;
+  color: var(--text-primary);
   background: transparent;
 }
 
 .field-input--error {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .field-input::placeholder {
@@ -522,7 +522,7 @@ const currencySymbol = computed(() => {
 
 .field-error {
   font-size: 12px;
-  color: #dc2626;
+  color: var(--color-danger);
   margin: 2px 0 6px;
   padding-left: 64px;
 }
@@ -533,7 +533,7 @@ const currencySymbol = computed(() => {
   border: none;
   outline: none;
   font-size: 14px;
-  color: #111827;
+  color: var(--text-primary);
   background: transparent;
   cursor: pointer;
   appearance: none;
@@ -544,14 +544,14 @@ const currencySymbol = computed(() => {
 }
 
 .field-select--error {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 .field-select--expense {
-  color: #dc2626;
+  color: var(--color-danger);
   font-weight: 600;
 }
 .field-select--income {
-  color: #16a34a;
+  color: var(--color-success);
   font-weight: 600;
 }
 
@@ -568,19 +568,18 @@ const currencySymbol = computed(() => {
   border-radius: 20px;
   font-size: 12.5px;
   font-weight: 500;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
   cursor: pointer;
   transition: all 0.12s;
 }
 
 .chip--default {
-  background: #ffffff;
-  color: #6b7280;
+  background: var(--card-bg);
+  color: var(--text-secondary);
 }
 
 .chip--default:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  filter: brightness(0.95);
 }
 
 .chip--payment {
@@ -595,16 +594,16 @@ const currencySymbol = computed(() => {
   display: flex;
   gap: 10px;
   padding: 16px 24px 24px;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid var(--border-color);
 }
 
 .btn-cancel {
   flex: 1;
   padding: 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-color);
   border-radius: 10px;
-  background: #ffffff;
-  color: #6b7280;
+  background: var(--card-bg);
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -661,5 +660,39 @@ const currencySymbol = computed(() => {
   to {
     transform: rotate(360deg);
   }
+}
+
+html.dark .badge--new {
+  background: rgba(22, 163, 74, 0.2);
+  color: #4ade80;
+}
+
+html.dark .badge--edit {
+  background: rgba(161, 98, 7, 0.2);
+  color: #facc15;
+}
+
+html.dark .chip--default:hover {
+  filter: brightness(1.2);
+}
+
+html.dark .chip--payment {
+  background: rgba(37, 99, 235, 0.2);
+  border-color: rgba(37, 99, 235, 0.5);
+  color: #60a5fa;
+}
+
+html.dark .field-input::placeholder {
+  color: #6b7280;
+}
+
+html.dark .btn-cancel:hover,
+html.dark .close-btn:hover {
+  filter: brightness(1.2);
+}
+
+html.dark .field-select option {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
 }
 </style>

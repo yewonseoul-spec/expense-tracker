@@ -1,37 +1,27 @@
 <template>
     <div class="card" :class="t.type">
-        <!-- 상단 -->
         <div class="top">
             <div class="left">
+                <!-- 카테고리 아이콘 (달력과 동일) -->
                 <span class="icon">{{ icon }}</span>
                 <span class="category" :style="{ background: categoryColors.bg, color: categoryColors.color }">
                     {{ t.categoryName }}
                 </span>
             </div>
+            <span class="date">{{ t.date }}</span>
         </div>
 
-        <!-- 제목 (메모 우선) -->
-        <div class="title">
-            {{ t.memo || t.title || '제목 없음' }}
+        <div class="middle">
+            <span class="amount" :class="t.type">
+                {{ t.type === 'income' ? '+' : '-' }}
+                {{ Number(t.amount).toLocaleString() }}원
+            </span>
         </div>
 
-        <!-- 금액 -->
-        <div class="amount" :class="t.type">
-            {{ t.type === 'income' ? '+' : '-' }}
-            {{ Number(t.amount).toLocaleString() }}원
+        <div class="bottom">
+            {{ t.memo }}
         </div>
 
-        <!-- 결제수단 -->
-        <div v-if="t.paymentMethod" class="payment">
-            💳 {{ t.paymentMethod }}
-        </div>
-
-        <!-- 메모 (있을 때만) -->
-        <div v-if="t.note" class="memo">
-            {{ t.note }}
-        </div>
-
-        <!-- 버튼 -->
         <div class="actions">
             <button @click="$emit('edit', t)">수정</button>
             <button @click="$emit('delete', t.id)">삭제</button>
@@ -40,7 +30,7 @@
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({
     t: Object,
     categoryColors: Object,
     icon: String
@@ -56,24 +46,13 @@ defineProps({
     display: flex;
     flex-direction: column;
     gap: 10px;
-    transition: 0.2s;
+    transition: all 0.2s ease;
 }
 
-/* 🔥 수입 / 지출 배경 */
-.card.income {
-    background: linear-gradient(135deg, #e8f5e9, #f1fff5);
-}
-
-.card.expense {
-    background: linear-gradient(135deg, #fdecea, #fff5f5);
-}
-
-/* hover */
 .card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-4px);
 }
 
-/* 상단 */
 .top {
     display: flex;
     justify-content: space-between;
@@ -86,8 +65,9 @@ defineProps({
     gap: 6px;
 }
 
+/* 아이콘 크기 */
 .icon {
-    font-size: 18px;
+    font-size: 20px;
 }
 
 .category {
@@ -97,15 +77,12 @@ defineProps({
     font-weight: bold;
 }
 
-/* 제목 */
-.title {
-    font-size: 18px;
-    font-weight: 800;
-    color: #111;
+.date {
+    font-size: 12px;
+    opacity: 0.6;
 }
 
-/* 금액 */
-.amount {
+.middle {
     font-size: 20px;
     font-weight: bold;
 }
@@ -118,41 +95,45 @@ defineProps({
     color: #b71c1c;
 }
 
-/* 메모 */
-.memo {
+.bottom {
     font-size: 13px;
     color: #555;
 }
 
-/* 결제수단 */
-.payment {
-    font-size: 12px;
-    color: #777;
-}
-
-/* 버튼 */
 .actions {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    margin-top: 6px;
 }
 
 .actions button {
-    border: none;
     padding: 4px 8px;
     font-size: 12px;
+    border: none;
     border-radius: 6px;
     cursor: pointer;
+    transition: 0.2s;
+}
+
+.actions button:hover {
+    opacity: 0.8;
 }
 
 .actions button:first-child {
-    background: #0288d1;
+    background-color: #0288d1;
     color: white;
 }
 
 .actions button:last-child {
-    background: #d32f2f;
+    background-color: #d32f2f;
     color: white;
+}
+
+.card.income {
+    background: linear-gradient(135deg, #e8f5e9, #f1fff5);
+}
+
+.card.expense {
+    background: linear-gradient(135deg, #fdecea, #fff5f5);
 }
 </style>

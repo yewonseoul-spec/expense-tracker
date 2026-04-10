@@ -23,10 +23,56 @@
             type="text"
             class="field-input"
             :class="{ 'field-input--error': errors.name }"
-            placeholder="홍길동"
+            placeholder="이름을 입력해주세요"
             @input="errors.name = ''"
           />
           <p v-if="errors.name" class="field-error">{{ errors.name }}</p>
+        </div>
+
+        <!-- 닉네임 -->
+        <div class="field-group">
+          <label class="field-label">닉네임</label>
+          <input
+            v-model="nickname"
+            type="text"
+            class="field-input"
+            :class="{ 'field-input--error': errors.nickname }"
+            placeholder="닉네임을 입력해주세요"
+            @input="errors.nickname = ''"
+          />
+          <p v-if="errors.nickname" class="field-error">
+            {{ errors.nickname }}
+          </p>
+        </div>
+
+        <!-- 성별 -->
+        <div class="field-group">
+          <label class="field-label">성별</label>
+          <div class="gender-group">
+            <button
+              type="button"
+              class="gender-btn"
+              :class="{ 'gender-btn--active': gender === '남성' }"
+              @click="
+                gender = '남성';
+                errors.gender = '';
+              "
+            >
+              남성
+            </button>
+            <button
+              type="button"
+              class="gender-btn"
+              :class="{ 'gender-btn--active': gender === '여성' }"
+              @click="
+                gender = '여성';
+                errors.gender = '';
+              "
+            >
+              여성
+            </button>
+          </div>
+          <p v-if="errors.gender" class="field-error">{{ errors.gender }}</p>
         </div>
 
         <!-- 이메일 -->
@@ -55,16 +101,40 @@
               placeholder="8자 이상, 영문+숫자 조합"
               @input="errors.password = ''"
             />
-            <button class="eye-btn" type="button" @click="showPassword = !showPassword">
-              <svg v-if="!showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="currentColor" />
+            <button
+              class="eye-btn"
+              type="button"
+              @click="showPassword = !showPassword"
+            >
+              <svg
+                v-if="!showPassword"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+                  fill="currentColor"
+                />
               </svg>
-              <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" fill="currentColor" />
+              <svg
+                v-else
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"
+                  fill="currentColor"
+                />
               </svg>
             </button>
           </div>
-          <p v-if="errors.password" class="field-error">{{ errors.password }}</p>
+          <p v-if="errors.password" class="field-error">
+            {{ errors.password }}
+          </p>
         </div>
 
         <!-- 비밀번호 확인 -->
@@ -79,16 +149,40 @@
               placeholder="비밀번호를 다시 입력하세요"
               @input="errors.passwordConfirm = ''"
             />
-            <button class="eye-btn" type="button" @click="showPasswordConfirm = !showPasswordConfirm">
-              <svg v-if="!showPasswordConfirm" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="currentColor" />
+            <button
+              class="eye-btn"
+              type="button"
+              @click="showPasswordConfirm = !showPasswordConfirm"
+            >
+              <svg
+                v-if="!showPasswordConfirm"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+                  fill="currentColor"
+                />
               </svg>
-              <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" fill="currentColor" />
+              <svg
+                v-else
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"
+                  fill="currentColor"
+                />
               </svg>
             </button>
           </div>
-          <p v-if="errors.passwordConfirm" class="field-error">{{ errors.passwordConfirm }}</p>
+          <p v-if="errors.passwordConfirm" class="field-error">
+            {{ errors.passwordConfirm }}
+          </p>
         </div>
 
         <!-- 가입하기 버튼 -->
@@ -114,12 +208,21 @@ import axios from 'axios';
 const router = useRouter();
 
 const name = ref('');
+const nickname = ref('');
+const gender = ref('');
 const email = ref('');
 const password = ref('');
 const passwordConfirm = ref('');
 const showPassword = ref(false);
 const showPasswordConfirm = ref(false);
-const errors = reactive({ name: '', email: '', password: '', passwordConfirm: '' });
+const errors = reactive({
+  name: '',
+  nickname: '',
+  gender: '',
+  email: '',
+  password: '',
+  passwordConfirm: '',
+});
 
 const validate = () => {
   let valid = true;
@@ -127,11 +230,23 @@ const validate = () => {
     errors.name = '이름을 입력해주세요.';
     valid = false;
   }
+  if (!nickname.value.trim()) {
+    errors.nickname = '닉네임을 입력해주세요.';
+    valid = false;
+  }
+  if (!gender.value) {
+    errors.gender = '성별을 선택해주세요.';
+    valid = false;
+  }
   if (!email.value.trim()) {
     errors.email = '이메일을 입력해주세요.';
     valid = false;
   }
-  if (password.value.length < 8 || !/[a-zA-Z]/.test(password.value) || !/[0-9]/.test(password.value)) {
+  if (
+    password.value.length < 8 ||
+    !/[a-zA-Z]/.test(password.value) ||
+    !/[0-9]/.test(password.value)
+  ) {
     errors.password = '8자 이상, 영문+숫자를 포함해야 합니다.';
     valid = false;
   }
@@ -145,13 +260,17 @@ const validate = () => {
 const handleRegister = async () => {
   if (!validate()) return;
   try {
-    const existing = await axios.get('/api/users', { params: { email: email.value } });
+    const existing = await axios.get('/api/users', {
+      params: { email: email.value },
+    });
     if (existing.data.length > 0) {
       errors.email = '이미 사용 중인 이메일입니다.';
       return;
     }
     await axios.post('/api/users', {
       name: name.value,
+      nickname: nickname.value,
+      gender: gender.value,
       email: email.value,
       password: password.value,
     });
@@ -267,7 +386,9 @@ const handleRegister = async () => {
   color: #111827;
   background: #ffffff;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
   box-sizing: border-box;
 }
 
@@ -318,6 +439,34 @@ const handleRegister = async () => {
   color: #6b7280;
 }
 
+.gender-group {
+  display: flex;
+  gap: 8px;
+}
+
+.gender-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    color 0.15s;
+}
+
+.gender-btn--active {
+  border-color: #22c55e;
+  background: #f0fdf4;
+  color: #16a34a;
+  font-weight: 700;
+}
+
 .register-btn {
   width: 100%;
   padding: 13px;
@@ -329,7 +478,9 @@ const handleRegister = async () => {
   border-radius: 12px;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(34, 197, 94, 0.35);
-  transition: opacity 0.15s, transform 0.1s;
+  transition:
+    opacity 0.15s,
+    transform 0.1s;
   margin-top: 4px;
 }
 
