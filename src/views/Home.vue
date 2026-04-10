@@ -100,7 +100,7 @@
                   )
                 }}
 
-                {{ text.amount < 0 ? '' : '+' }}
+                {{ text.amount < 0 ? '0' : '' }}
               </p>
               <!-- 나중에 카테고리 - 배지 표현 추가, 거래내역 카테고리 디자인 참조 -->
               <!-- <span :class="['status-badge', text.status.toLowerCase()]">{{
