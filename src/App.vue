@@ -6,30 +6,57 @@
       <component :is="bgComponent" />
     </div>
 
-    <main class="main-content" :class="{ 'main-content--full': route.name === 'Login' }">
+    <main
+      class="main-content"
+      :class="{ 'main-content--full': route.name === 'Login' }"
+    >
       <RouterView />
     </main>
 
     <!-- ── 하단 고정: 거래 추가 버튼 ── -->
-    <RouterLink v-if="route.name !== 'TransactionAdd' && route.name !== 'Login' && route.name !== 'Register' && !route.path.startsWith('/settings')"
-      to="/transaction/add" class="fab">
+    <RouterLink
+      v-if="
+        route.name !== 'TransactionAdd' &&
+        route.name !== 'Login' &&
+        route.name !== 'Register' &&
+        !route.path.startsWith('/settings')
+      "
+      to="/transaction/add"
+      class="fab"
+    >
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" fill="currentColor" />
       </svg>
       <span>새 거래 추가</span>
     </RouterLink>
-
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import Header from './components/Header.vue';
 import TransactionCal from './views/TransactionCal.vue';
 import Home from './views/Home.vue';
+import { useSettingsStore } from '@/stores/settings';
 
 const route = useRoute();
+
+const settingsStore = useSettingsStore();
+
+watch(
+  () => settingsStore.isDarkMode,
+  () => {
+    updateTheme();
+  },
+);
+
+watch(
+  () => route.path,
+  () => {
+    updateTheme();
+  },
+);
 
 const backgroundRouteMap = {
   TransactionCal,
@@ -37,15 +64,40 @@ const backgroundRouteMap = {
 };
 
 const prevRouteName = ref(null);
-watch(() => route.name, (newName, oldName) => {
-  if (newName === 'TransactionAdd') {
-    prevRouteName.value = oldName;
-  }
-});
+watch(
+  () => route.name,
+  (newName, oldName) => {
+    if (newName === 'TransactionAdd') {
+      prevRouteName.value = oldName;
+    }
+  },
+);
 
 const bgComponent = computed(() =>
-  route.name === 'TransactionAdd' ? backgroundRouteMap[prevRouteName.value] ?? null : null
+  route.name === 'TransactionAdd'
+    ? (backgroundRouteMap[prevRouteName.value] ?? null)
+    : null,
 );
+
+// 다크모드 클래스를 <html>에 적용
+const updateTheme = () => {
+  const isSettingsPage = route.path.startsWith('/settings');
+
+  if (isSettingsPage) {
+    document.documentElement.classList.remove('dark');
+    return;
+  }
+
+  if (settingsStore.isDarkMode) {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+};
+
+onMounted(() => {
+  updateTheme(settingsStore.isDarkMode);
+});
 </script>
 
 <style>
@@ -58,7 +110,7 @@ const bgComponent = computed(() =>
 body {
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #f5f6fa;
+  background-color: var(--bg-color);
 }
 
 #app {
@@ -117,6 +169,21 @@ body {
     0 8px 28px rgba(34, 197, 94, 0.5),
     0 4px 12px rgba(0, 0, 0, 0.12);
   color: #ffffff;
+}
+
+html.dark .fab {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .fab:hover {
+  background: linear-gradient(135deg, #15803d 0%, #14532d 100%);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.6),
+    0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .fab:active {

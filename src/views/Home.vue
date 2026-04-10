@@ -7,21 +7,39 @@
         <div class="card summary-card">
           <p class="summary-label">총 수입</p>
           <p class="summary-value positive">
-            +{{ totalIncome.toLocaleString() }}
+            +{{
+              formatMoney(
+                totalIncome,
+                settingsStore.currency,
+                settingsStore.exchangeRate,
+              )
+            }}
           </p>
         </div>
         <!-- 총지출 -->
         <div class="card summary-card">
           <p class="summary-label">총 지출</p>
           <p class="summary-value negative">
-            -{{ totalExpense.toLocaleString() }}
+            -{{
+              formatMoney(
+                totalExpense,
+                settingsStore.currency,
+                settingsStore.exchangeRate,
+              )
+            }}
           </p>
         </div>
         <!-- 순수익 -->
         <div class="card summary-card">
           <p class="summary-label">순수익</p>
           <p class="summary-value">
-            {{ (totalIncome - totalExpense).toLocaleString() }}
+            {{
+              formatMoney(
+                totalIncome - totalExpense,
+                settingsStore.currency,
+                settingsStore.exchangeRate,
+              )
+            }}
           </p>
         </div>
       </section>
@@ -74,7 +92,15 @@
                 ]"
               >
                 {{ text.type === 'income' ? '+' : '-' }}
-                {{ text.amount.toLocaleString() }}
+                {{
+                  formatMoney(
+                    text.amount,
+                    settingsStore.currency,
+                    settingsStore.exchangeRate,
+                  )
+                }}
+
+                {{ text.amount < 0 ? '' : '+' }}
               </p>
               <!-- 나중에 카테고리 - 배지 표현 추가, 거래내역 카테고리 디자인 참조 -->
               <!-- <span :class="['status-badge', text.status.toLowerCase()]">{{
@@ -108,6 +134,11 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useTransactionStore } from '@/stores/transactionStore';
+import { useSettingsStore } from '@/stores/settings';
+import { formatMoney } from '@/utils/formatter';
+
+const settingsStore = useSettingsStore();
+
 import { Bar } from 'vue-chartjs';
 import {
   Chart as ChartJS,
@@ -170,6 +201,11 @@ const chartData = computed(() => {
   const incomeData = Array(monthCount).fill(0);
   const expenseData = Array(monthCount).fill(0);
 
+  // 다크 모드 상태에 따른 색상
+  const isDark = settingsStore.isDarkMode;
+  const colorSuccess = isDark ? '#34d399' : '#10b981'; // 수입
+  const colorDanger = isDark ? '#fb7185' : '#f43f5e'; // 지출
+
   // 1월부터 현재 월까지 순서대로 생성
   for (let i = 0; i < monthCount; i++) {
     const d = new Date(store.currentYear, i, 1);
@@ -203,13 +239,13 @@ const chartData = computed(() => {
     datasets: [
       {
         label: '수입',
-        backgroundColor: '#10b981',
+        backgroundColor: colorSuccess,
         data: incomeData,
         borderRadius: 3,
       },
       {
         label: '지출',
-        backgroundColor: '#f43f5e',
+        backgroundColor: colorDanger,
         data: expenseData,
         borderRadius: 3,
       },
@@ -218,15 +254,67 @@ const chartData = computed(() => {
 });
 
 // 차트 옵션
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { legend: { position: 'bottom' } },
-  scales: {
-    y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
-    x: { grid: { display: false } },
-  },
-};
+const chartOptions = computed(() => {
+  // 다크 모드 상태에 따른 색상
+  const isDark = settingsStore.isDarkMode;
+  const textColor = isDark ? '#ffffff' : '#374151';
+  const gridColor = isDark ? '#3d3d3d' : '#f3f4f6';
+
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    color: textColor,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          color: textColor,
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed.y !== null) {
+              label += formatMoney(
+                context.parsed.y,
+                settingsStore.currency,
+                settingsStore.exchangeRate,
+              );
+            }
+            return label;
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: { color: gridColor },
+        ticks: {
+          color: textColor,
+          callback: function (value) {
+            return formatMoney(
+              value,
+              settingsStore.currency,
+              settingsStore.exchangeRate,
+            );
+          },
+        },
+      },
+
+      x: {
+        grid: { display: false },
+        ticks: {
+          color: textColor,
+        },
+      },
+    },
+  };
+});
 
 // 최근 거래 내역 더보기 기능
 const isModalOpen = ref(false);
@@ -258,8 +346,8 @@ const toggleList = () => {
 /* 전체 배경 및 폰트 */
 .container {
   min-height: 100vh;
-  background-color: #f9fafb;
-  padding: 20px 20px 40px 20px;
+  background-color: transparent;
+  padding: 100px 20px 40px 20px;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -275,12 +363,12 @@ const toggleList = () => {
 
 /* 카드 스타일 */
 .card {
-  background: white;
+  background-color: var(--card-bg);
   border-radius: 16px;
   padding: 24px;
   box-sizing: border-box;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--border-color);
   width: 100%;
 }
 .summary-header {
@@ -303,13 +391,13 @@ const toggleList = () => {
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 20px;
-  color: #374151;
+  color: var(--text-primary);
 }
 /* 총수익, 총지출, 순수익 금액 */
 .summary-value {
   font-size: 22px;
   font-weight: 800;
-  color: blue;
+  color: var(--color-info);
 }
 .summary-grid {
   display: grid;
@@ -357,7 +445,7 @@ input:focus {
   justify-content: space-between;
   align-items: center;
   padding: 16px 0;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .text-left {
@@ -404,13 +492,13 @@ input:focus {
 /* 내역명 */
 .text-memo {
   font-weight: 700;
-  color: #374151;
+  color: var(--text-primary);
   margin: 0;
 }
 /* 거래일자 · 결제수단 */
 .text-info {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--text-secondary);
   margin: 2px 0 0 0;
 }
 /* 금액 */
@@ -426,10 +514,10 @@ input:focus {
   margin: 0;
 }
 .negative {
-  color: #ef4444;
+  color: var(--color-danger);
 }
 .positive {
-  color: #22c55e;
+  color: var(--color-success);
 }
 
 /* 최근 거래내역 더보기 버튼 */

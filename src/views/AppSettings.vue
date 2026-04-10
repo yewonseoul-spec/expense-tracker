@@ -1,3 +1,8 @@
+<script setup>
+import { useSettingsStore } from '@/stores/settings';
+
+const settingsStore = useSettingsStore();
+</script>
 <template>
   <div class="app-settings">
     <div class="settings-banner"></div>
@@ -9,7 +14,11 @@
         <div class="setting-item">
           <span class="setting-name">다크 모드</span>
           <label class="switch">
-            <input type="checkbox" />
+            <input
+              type="checkbox"
+              :checked="settingsStore.isDarkMode"
+              @change="settingsStore.toggleDarkMode()"
+            />
             <span class="slider"></span>
           </label>
         </div>
@@ -17,7 +26,11 @@
         <div class="setting-item">
           <span class="setting-name">통화 단위</span>
           <div class="select-wrapper">
-            <select class="custom-select">
+            <select
+              class="custom-select"
+              v-model="settingsStore.currency"
+              @change="settingsStore.setCurrency($event.target.value)"
+            >
               <option value="KRW">원화 (₩)</option>
               <option value="USD">달러 ($)</option>
             </select>

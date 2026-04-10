@@ -22,7 +22,7 @@
       </RouterLink>
 
       <!-- ──날짜 선택기 ── -->
-      <div class="date-selector">
+      <div v-if="showDateSelector" class="date-selector">
         <button class="arrow-btn" @click="store.prevMonth()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path
@@ -106,13 +106,33 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTransactionStore } from '@/stores/transactionStore';
 
 const route = useRoute();
 const router = useRouter();
 const store = useTransactionStore();
+
+const prevRouteName = ref(null);
+watch(
+  () => route.name,
+  (newName, oldName) => {
+    if (newName === 'TransactionAdd') {
+      prevRouteName.value = oldName;
+    }
+  },
+);
+
+const showDateSelector = computed(() => {
+  if (route.name === 'TransactionCal') return false;
+  if (
+    route.name === 'TransactionAdd' &&
+    prevRouteName.value === 'TransactionCal'
+  )
+    return false;
+  return true;
+});
 
 const handleLogout = () => {
   localStorage.removeItem('loggedIn');
@@ -134,8 +154,9 @@ const isCurrentMonth = computed(
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: #ffffff;
+  background: var(--card-bg);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  transition: background-color 0.3s ease;
 }
 
 /* ── 2행: 탭 네비 ── */
@@ -158,7 +179,7 @@ const isCurrentMonth = computed(
   padding: 12px 22px;
   font-size: 15px;
   font-weight: 500;
-  color: #9ca3af;
+  color: var(--text-secondary);
   text-decoration: none;
   border-bottom: 2px solid transparent;
   transition:
@@ -168,13 +189,13 @@ const isCurrentMonth = computed(
 }
 
 .nav-tab:hover {
-  color: #374151;
+  color: var(--text-primary);
 }
 
 .nav-tab--active {
-  color: #16a34a;
+  color: var(--color-success);
   font-weight: 600;
-  border-bottom-color: #22c55e;
+  border-bottom-color: var(--color-success);
 }
 
 .header-inner {
@@ -212,7 +233,7 @@ const isCurrentMonth = computed(
 .brand-name {
   font-size: 20px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
   letter-spacing: -0.3px;
 }
 
@@ -221,8 +242,8 @@ const isCurrentMonth = computed(
   display: flex;
   align-items: center;
   gap: 4px;
-  background: #f8fafb;
-  border: 1px solid #e8ecf0;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 4px;
 }
@@ -236,7 +257,7 @@ const isCurrentMonth = computed(
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+  color: var(--text-secondary);
   cursor: pointer;
   transition:
     background 0.15s,
@@ -245,7 +266,7 @@ const isCurrentMonth = computed(
 
 .arrow-btn:hover {
   background: #e9f7ef;
-  color: #16a34a;
+  color: var(--color-success);
 }
 
 .date-label {
@@ -254,11 +275,11 @@ const isCurrentMonth = computed(
   gap: 7px;
   padding: 8px 18px;
   border: none;
-  background: #ffffff;
+  background: var(--card-bg);
   border-radius: 10px;
   font-size: 17px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-primary);
   cursor: pointer;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   transition: background 0.15s;
@@ -267,7 +288,7 @@ const isCurrentMonth = computed(
 }
 
 .date-label svg {
-  color: #16a34a;
+  color: var(--color-success);
   flex-shrink: 0;
 }
 
@@ -336,7 +357,7 @@ const isCurrentMonth = computed(
 .logout-btn:hover {
   background: #fef2f2;
   border-color: #fca5a5;
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 .avatar-btn {
@@ -358,6 +379,21 @@ const isCurrentMonth = computed(
 .avatar-btn:hover {
   opacity: 0.9;
   transform: scale(1.05);
+}
+
+html.dark .app-header {
+  box-shadow: none;
+  border-bottom: 1px solid var(--border-color);
+}
+
+html.dark .arrow-btn:hover,
+html.dark .date-label:hover {
+  background: rgba(74, 222, 128, 0.15);
+}
+
+html.dark .logout-btn:hover {
+  background: rgba(248, 113, 113, 0.15);
+  border-color: rgba(248, 113, 113, 0.4);
 }
 
 /* 태블릿 */
