@@ -22,7 +22,14 @@ export const useUserStore = defineStore('user', () => {
 
   // DB에서 최신 데이터를 가져오는 액션
   const fetchUserInfo = async () => {
-    if (!userInfo.value.id) return;
+    if (!userInfo.value.id) {
+      const auth = JSON.parse(localStorage.getItem('auth'));
+      if (auth && auth.id) {
+        userInfo.value.id = auth.id;
+      } else {
+        return;
+      }
+    }
     try {
       const res = await axios.get(
         `http://localhost:3000/users/${userInfo.value.id}`,
@@ -63,7 +70,20 @@ export const useUserStore = defineStore('user', () => {
     localStorage.setItem('userProfileImage', base64String);
   };
 
-  let userId = computed( () => userInfo.value.id)
+  let userId = computed(() => userInfo.value.id);
+
+  const reset = () => {
+    userInfo.value = {
+      id: '',
+      name: '',
+      email: '',
+      nickname: '',
+      gender: '남성',
+      timezone: 'KST / UTC+09:00',
+    };
+    profileImage.value = 'https://placehold.co/100x100';
+  };
+
   return {
     userId,
     userInfo,
@@ -71,5 +91,6 @@ export const useUserStore = defineStore('user', () => {
     fetchUserInfo,
     saveProfileToDB,
     updateProfileImage,
+    reset,
   };
 });
