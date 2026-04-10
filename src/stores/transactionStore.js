@@ -129,6 +129,18 @@ export const useTransactionStore = defineStore('transaction', () => {
     );
   };
 
+  const reset = () => {
+    transactions.value = [];
+    categories.value = [];
+    userData.value = [];
+    userMonth.value = [];
+
+    const today = new Date();
+    currentYear.value = today.getFullYear();
+    currentMonth.value = today.getMonth() + 1;
+    selectedDate.value = today.toISOString().slice(0, 10);
+  };
+
   ///////////
   return {
     transactions,
@@ -150,5 +162,6 @@ export const useTransactionStore = defineStore('transaction', () => {
     getDate,
     getMonth,
     userMonth,
+    reset,
   };
 });
