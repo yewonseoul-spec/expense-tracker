@@ -22,7 +22,7 @@ const goBack = () => router.back();
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 16px;
+  padding: 116px 16px 24px;
   overflow-y: auto;
 }
 </style>

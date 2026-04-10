@@ -108,8 +108,8 @@
         {{ errors.categoryName }}
       </p>
 
-      <!-- 결제수단 -->
-      <div class="field-block">
+      <!-- 결제수단 (지출만) -->
+      <div v-if="form.type === 'expense'" class="field-block">
         <label class="field-label">결제수단</label>
         <div class="chip-group">
           <button
