@@ -64,22 +64,27 @@
         <h3 class="section-title">최근 거래내역</h3>
         <div class="text-list">
           <div
-            v-for="text in filteredTransactions"
+            v-for="text in visibleTransactions"
             :key="text.id"
             class="text-item"
           >
+            <!-- 좌측 표현요소 -->
             <div class="text-left">
+              <!-- 수입 / 지출 아이콘으로 표현 -->
               <div
                 :class="['icon-circle', text.type === 'income' ? 'in' : 'out']"
               >
                 {{ text.type === 'income' ? '↗' : '↘' }}
               </div>
+              <!-- 거래내역명 , 거래일자 -->
               <div>
-                <p class="text-title">{{ text.title }}</p>
+                <p class="text-memo">{{ text.memo }}</p>
                 <p class="text-info">{{ text.date }}</p>
               </div>
             </div>
+            <!-- 우측 표현요소 -->
             <div class="text-right">
+              <!-- 금액, 카테고리 표기-->
               <p
                 :class="[
                   'text-amount',
@@ -97,12 +102,29 @@
 
                 {{ text.amount < 0 ? '' : '+' }}
               </p>
-              <!-- 나중에 카테고리 - 배지 표현 추가 -->
+              <!-- 나중에 카테고리 - 배지 표현 추가, 거래내역 카테고리 디자인 참조 -->
               <!-- <span :class="['status-badge', text.status.toLowerCase()]">{{
                 text.status
               }}</span> -->
             </div>
           </div>
+        </div>
+        <!-- 하단 더보기 버튼 관련 기능-->
+        <div v-if="filteredTransactions.length > 5" class="more-btn-container">
+          <button @click="toggleList" class="more-btn-styled">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path
+                v-if="!isFullList"
+                d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+                fill="currentColor"
+              />
+              <path
+                v-else
+                d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6 1.41 1.41z"
+                fill="currentColor"
+              ></path>
+            </svg>
+          </button>
         </div>
       </section>
     </div>
@@ -159,10 +181,16 @@ const totalExpense = computed(() => store.monthlyExpense || 0);
 // 필터링된 내역
 const filteredTransactions = computed(() => {
   if (!store.transactions) return [];
-  return store.transactions.filter((t) => {
-    const [y, m] = t.date.split('-').map(Number);
-    return y === store.currentYear && m === store.currentMonth;
-  });
+
+  return (
+    store.transactions
+      .filter((t) => {
+        const [y, m] = t.date.split('-').map(Number);
+        return y === store.currentYear && m === store.currentMonth;
+      })
+      // 일자별 내림차순 정렬
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+  );
 });
 
 // 차트 데이터 생성
@@ -288,51 +316,29 @@ const chartOptions = computed(() => {
   };
 });
 
-const transactions = ref([
-  {
-    id: 1,
-    title: '점심',
-    date: '2026-03-23',
-    type: 'expense',
-    categoryName: '식비',
-    amount: -8000,
-    paymethod: '신용카드',
-    memo: '',
-  },
-  {
-    id: 2,
-    title: '필기구 구입',
-    date: '2026-04-03',
-    type: 'expense',
-    categoryName: '공부',
-    amount: -1500,
-    paymethod: '현금',
-    memo: '',
-  },
-  {
-    id: 3,
-    title: '급여',
-    date: '2026-04-10',
-    type: 'income',
-    categoryName: '수입',
-    amount: 500000,
-    paymethod: '은행',
-    memo: '',
-  },
-]);
+// 최근 거래 내역 더보기 기능
+const isModalOpen = ref(false);
+const displayCount = ref(5); // 최근 거래내역 보여줄 갯수 지정
 
-// 초기값 데이터
-const newInput = ref({
-  title: '',
-  amount: null,
-  type: 'expense',
-  categoryName: '식비',
-  paymethod: '신용카드',
-  memo: '',
+// 위에서 필터링 한 filteredTransactions 사용하여 displayCount 만큼만 자르기
+const visibleTransactions = computed(() => {
+  return filteredTransactions.value.slice(0, displayCount.value);
 });
 
-const openModal = () => {
-  isModalOpen.value = true;
+// 모든 내역을 조회하였는지 확인
+const isFullList = computed(() => {
+  return displayCount.value >= filteredTransactions.value.length;
+});
+
+// 더보기 버튼 클릭 시 실행할 함수
+const toggleList = () => {
+  if (isFullList.value) {
+    // 모두 조회한 경우 리스트를 접고 5개로 초기화
+    displayCount.value = 5;
+  } else {
+    // 리스트 내역이 더 있다면 5개 추가
+    displayCount.value += 5;
+  }
 };
 </script>
 
@@ -466,10 +472,25 @@ input:focus {
   background: #f0fdf4;
   color: #22c55e;
 }
-
+/* 차트 영역 설정 */
+.stats-section {
+  width: 100%;
+}
+.chart-container {
+  height: 350px;
+  width: 100%;
+  position: relative;
+  margin-top: 10px;
+}
+.chart-placeholder {
+  height: 300px;
+  background: #fdfdfd;
+  border: 1px dashed #e5e7eb;
+  border-radius: 12px;
+}
 /* 최근 거래내역 */
 /* 내역명 */
-.text-title {
+.text-memo {
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
@@ -498,20 +519,49 @@ input:focus {
 .positive {
   color: var(--color-success);
 }
-/* 차트 영역 설정 */
-.stats-section {
-  width: 100%;
+
+/* 최근 거래내역 더보기 버튼 */
+.more-btn-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
-.chart-container {
-  height: 350px;
-  width: 100%;
-  position: relative;
-  margin-top: 10px;
+
+.more-btn {
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
 }
-.chart-placeholder {
-  height: 300px;
-  background: #fdfdfd;
-  border: 1px dashed #e5e7eb;
-  border-radius: 12px;
+
+.more-btn:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.more-btn-styled {
+  width: 100%;
+  max-width: 200px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 </style>
