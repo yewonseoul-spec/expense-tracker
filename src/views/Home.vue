@@ -161,30 +161,22 @@ ChartJS.register(
   LinearScale,
 );
 
+const props = defineProps({ isBackground: Boolean });
+
 const store = useTransactionStore();
 const userStore = useUserStore();
 const currentUserId = computed(() => userStore.userId);
 
 // 데이터 초기 로드
-onMounted(async () => {
-  // 1. 유저 정보가 없으면 DB에서 가져오기
-  if (!currentUserId.value) {
-    await userStore.fetchUserInfo();
-  }
-
-  // 2. 유저가 확인되면 가계부 데이터 가져오기
-  if (currentUserId.value) {
-    store.fetchData();
-  }
+onMounted(() => {
+  if (!props.isBackground) store.fetchData();
 });
 
 // 날짜 / 사용자 변경 감시
 watch(
-  () => [store.currentYear, store.currentMonth, currentUserId.value],
-  async ([year, month, userId]) => {
-    if (userId) {
-      await store.fetchData();
-    }
+  () => [store.currentYear, store.currentMonth],
+  () => {
+    if (!props.isBackground) store.fetchData();
   },
 );
 

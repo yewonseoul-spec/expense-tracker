@@ -161,8 +161,10 @@
 import { ref, reactive, computed, watch } from 'vue';
 import { useTransactionStore } from '@/stores/transactionStore';
 import { useSettingsStore } from '@/stores/settings';
+import { useUserStore } from '@/stores/user';
 
 const settingsStore = useSettingsStore();
+const userStore = useUserStore();
 const EXCHANGE_RATE = 1500;
 
 const props = defineProps({
@@ -282,6 +284,7 @@ const handleSubmit = async () => {
     }
 
     const data = {
+      userId: userStore.userInfo.id,
       type: form.type,
       amount: finalAmount,
       memo: form.memo.trim(),
