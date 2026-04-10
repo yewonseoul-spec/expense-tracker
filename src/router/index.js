@@ -61,6 +61,7 @@ const router = createRouter({
       path: '/settings',
       component: () => import('@/components/SettingsLayout.vue'),
       redirect: '/settings/profile',
+      meta: { requiresAuth: true },
       children: [
         {
           path: 'profile',
@@ -80,6 +81,7 @@ const router = createRouter({
 router.beforeEach((to) => {
   const loggedIn = localStorage.getItem('loggedIn') === 'true';
   if (to.meta.requiresAuth && !loggedIn) {
+    alert('로그인이 필요합니다.');
     return { name: 'Login' };
   }
   if (publicRoutes.includes(to.name) && loggedIn) {
