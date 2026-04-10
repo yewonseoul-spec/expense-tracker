@@ -312,7 +312,7 @@ const displayAmount = (amount) => {
       </div>
     </div>
 
-    <router-view />
+    <router-view v-if="!isBackground" />
 
     <!-- 날짜 클릭 시 거래 상세 리스트 -->
     <div v-if="selectedDay && !editingTransaction" class="detail-panel">
