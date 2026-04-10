@@ -109,10 +109,12 @@
 import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTransactionStore } from '@/stores/transactionStore';
+import { useUserStore } from '@/stores/user';
 
 const route = useRoute();
 const router = useRouter();
 const store = useTransactionStore();
+const userStore = useUserStore();
 
 const prevRouteName = ref(null);
 watch(
@@ -137,6 +139,13 @@ const showDateSelector = computed(() => {
 const handleLogout = () => {
   localStorage.removeItem('loggedIn');
   localStorage.removeItem('auth');
+
+  const userStore = useUserStore();
+  const transactionStore = useTransactionStore();
+
+  userStore.reset();
+  transactionStore.reset();
+
   router.push('/login');
 };
 

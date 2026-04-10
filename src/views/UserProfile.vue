@@ -5,8 +5,9 @@ import { useUserStore } from '@/stores/user';
 const userStore = useUserStore();
 const isEditing = ref(false);
 const fileInputRef = ref(null);
-
 const formData = ref({ ...userStore.userInfo });
+
+const isLoading = ref(true);
 
 watch(
   () => userStore.userInfo,
@@ -17,7 +18,9 @@ watch(
 );
 
 onMounted(async () => {
+  isLoading.value = true;
   await userStore.fetchUserInfo();
+  isLoading.value = false;
 });
 
 // --- 로직 (Functions) ---
@@ -29,11 +32,29 @@ const triggerImageUpload = () => {
 // 이미지 파일 선택 완료 시 호출되는 함수
 const onImageSelected = (event) => {
   const file = event.target.files[0];
-  if (file && file.type.startsWith('image/')) {
-    const reader = new FileReader();
-    reader.onload = (e) => userStore.updateProfileImage(e.target.result);
-    reader.readAsDataURL(file);
-  }
+  if (!file || !file.type.startsWith('image/')) return;
+
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = (e) => {
+    const img = new Image();
+    img.src = e.target.result;
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const MAX_SIZE = 100;
+      canvas.width = MAX_SIZE;
+      canvas.height = MAX_SIZE;
+
+      const ctx = canvas.getContext('2d');
+
+      ctx.drawImage(img, 0, 0, MAX_SIZE, MAX_SIZE);
+
+      const resizedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+      userStore.updateProfileImage(resizedBase64);
+    };
+  };
 };
 
 // 편집 모드 전환 & 취소 함수
@@ -69,7 +90,12 @@ const saveProfile = async () => {
   <div class="user-profile">
     <div class="profile-banner"></div>
 
-    <div class="profile-content">
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="spinner"></div>
+      <p>프로필 정보를 불러오는 중</p>
+    </div>
+
+    <div v-else class="profile-content">
       <div class="profile-header">
         <div class="profile-info">
           <div class="profile-pic-container" @click="triggerImageUpload">
@@ -179,6 +205,31 @@ const saveProfile = async () => {
   height: 100px;
   background: linear-gradient(90deg, #d2e4f6 0%, #fef3d5 100%);
   flex-shrink: 0;
+}
+
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: var(--text-secondary);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--color-info);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* 프로필 본문 영역 */

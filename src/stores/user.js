@@ -22,12 +22,21 @@ export const useUserStore = defineStore('user', () => {
 
   // DB에서 최신 데이터를 가져오는 액션
   const fetchUserInfo = async () => {
-    if (!userInfo.value.id) return;
+    if (!userInfo.value.id) {
+      const auth = JSON.parse(localStorage.getItem('auth'));
+      if (auth && auth.id) {
+        userInfo.value.id = auth.id;
+      } else {
+        return;
+      }
+    }
     try {
       const res = await axios.get(
         `http://localhost:3000/users/${userInfo.value.id}`,
       );
       userInfo.value = res.data;
+      profileImage.value =
+        res.data.profileImage || 'https://placehold.co/100x100';
     } catch (error) {
       console.error('유저 정보 가져오기 실패:', error);
     }
@@ -58,12 +67,35 @@ export const useUserStore = defineStore('user', () => {
   };
 
   // 프로필 이미지 변경 액션
-  const updateProfileImage = (base64String) => {
-    profileImage.value = base64String;
-    localStorage.setItem('userProfileImage', base64String);
+  const updateProfileImage = async (base64String) => {
+    if (!userInfo.value.id) return;
+
+    try {
+      profileImage.value = base64String;
+
+      await axios.patch(`http://localhost:3000/users/${userInfo.value.id}`, {
+        profileImage: base64String,
+      });
+    } catch (error) {
+      console.error('프로필 이미지 저장 실패:', error);
+      alert('이미지 저장에 실패했습니다.');
+    }
   };
 
-  let userId = computed( () => userInfo.value.id)
+  let userId = computed(() => userInfo.value.id);
+
+  const reset = () => {
+    userInfo.value = {
+      id: '',
+      name: '',
+      email: '',
+      nickname: '',
+      gender: '남성',
+      timezone: 'KST / UTC+09:00',
+    };
+    profileImage.value = 'https://placehold.co/100x100';
+  };
+
   return {
     userId,
     userInfo,
@@ -71,5 +103,6 @@ export const useUserStore = defineStore('user', () => {
     fetchUserInfo,
     saveProfileToDB,
     updateProfileImage,
+    reset,
   };
 });
