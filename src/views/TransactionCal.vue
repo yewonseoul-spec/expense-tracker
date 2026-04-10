@@ -4,10 +4,14 @@ import { useTransactionStore } from '@/stores/transactionStore';
 import { useUserStore } from '@/stores/user';
 import TransactionForm from '@/components/TransactionForm.vue';
 import TransactionDetail from '@/components/TransactionDetail.vue';
+import { useSettingsStore } from '@/stores/settings';
+import { formatMoney } from '@/utils/formatter';
 
 const transactionStore = useTransactionStore();
 const userStore = useUserStore();
 const userId = computed(() => userStore.userInfo.id);
+
+const settingsStore = useSettingsStore();
 
 const props = defineProps({ isBackground: Boolean });
 
@@ -66,9 +70,18 @@ function formatToYYYYMMDD(dateInput) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-onMounted(() => { if (!props.isBackground && userId.value) transactionStore.getMonth(currentDate.value, userId.value); });
-watch(currentDate, (newDate) => { if (!props.isBackground && userId.value) transactionStore.getMonth(newDate, userId.value); });
-watch(userId, (newId) => { if (!props.isBackground && newId) transactionStore.getMonth(currentDate.value, newId); });
+onMounted(() => {
+  if (!props.isBackground && userId.value)
+    transactionStore.getMonth(currentDate.value, userId.value);
+});
+watch(currentDate, (newDate) => {
+  if (!props.isBackground && userId.value)
+    transactionStore.getMonth(newDate, userId.value);
+});
+watch(userId, (newId) => {
+  if (!props.isBackground && newId)
+    transactionStore.getMonth(currentDate.value, newId);
+});
 
 const transactions = computed(() =>
   Array.isArray(transactionStore.userMonth) ? transactionStore.userMonth : [],
@@ -222,6 +235,14 @@ async function handleDeleted(id) {
     selectedDay.value = null;
   }
 }
+
+const displayAmount = (amount) => {
+  return formatMoney(
+    amount,
+    settingsStore.currency,
+    settingsStore.exchangeRate,
+  );
+};
 </script>
 
 <template>
@@ -270,7 +291,7 @@ async function handleDeleted(id) {
               class="total"
               :class="{ plus: day.total > 0, minus: day.total < 0 }"
             >
-              {{ day.total !== 0 ? day.total.toLocaleString() : '' }}
+              {{ day.total !== 0 ? displayAmount(day.total) : '' }}
             </div>
             <div class="items">
               <div
@@ -283,7 +304,7 @@ async function handleDeleted(id) {
                 }"
               >
                 <span>{{ t.categoryName }}</span>
-                <span>{{ Math.abs(t.amount).toLocaleString() }}</span>
+                <span>{{ displayAmount(Math.abs(t.amount)) }}</span>
               </div>
             </div>
           </div>
@@ -291,7 +312,7 @@ async function handleDeleted(id) {
       </div>
     </div>
 
-    <router-view />
+    <router-view v-if="!isBackground" />
 
     <!-- 날짜 클릭 시 거래 상세 리스트 -->
     <div v-if="selectedDay && !editingTransaction" class="detail-panel">

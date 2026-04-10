@@ -4,24 +4,25 @@
             <div class="left">
                 <!-- 카테고리 아이콘 (달력과 동일) -->
                 <span class="icon">{{ icon }}</span>
-                <span class="category" :style="{ background: categoryColors.bg, color: categoryColors.color }">
+                <span class="category" :style="{
+                    background: categoryColors.bg,
+                    color: categoryColors.color,
+                }">
                     {{ t.categoryName }}
                 </span>
             </div>
-            <span class="note">{{ t.note }}</span>
+            <span class="date">{{ t.date }}</span>
         </div>
 
         <div class="middle">
-            {{ t.memo }}
-            <br>
             <span class="amount" :class="t.type">
                 {{ t.type === 'income' ? '+' : '-' }}
-                {{ Number(t.amount).toLocaleString() }}원
+                {{ displayAmount(Number(t.amount)) }}원
             </span>
         </div>
 
         <div class="bottom">
-            {{ t.paymentMethod }}
+            {{ t.memo }}
         </div>
 
         <div class="actions">
@@ -32,11 +33,24 @@
 </template>
 
 <script setup>
+import { useSettingsStore } from '@/stores/settings';
+import { formatMoney } from '@/utils/formatter';
+
 const props = defineProps({
     t: Object,
     categoryColors: Object,
-    icon: String
+    icon: String,
 });
+
+const settingsStore = useSettingsStore();
+
+const displayAmount = (amount) => {
+    return formatMoney(
+        amount,
+        settingsStore.currency,
+        settingsStore.exchangeRate,
+    );
+};
 </script>
 
 <style scoped>
@@ -80,6 +94,11 @@ const props = defineProps({
 }
 
 .note {
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.date {
     font-size: 12px;
     opacity: 0.6;
 }
