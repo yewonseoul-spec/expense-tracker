@@ -43,14 +43,30 @@
               placeholder="비밀번호를 입력하세요"
               @input="errors.password = ''"
             />
-            <button class="eye-btn" type="button" @click="showPassword = !showPassword">
-              <svg v-if="!showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <button
+              class="eye-btn"
+              type="button"
+              @click="showPassword = !showPassword"
+            >
+              <svg
+                v-if="!showPassword"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
                 <path
                   d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
                   fill="currentColor"
                 />
               </svg>
-              <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <svg
+                v-else
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
                 <path
                   d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"
                   fill="currentColor"
@@ -58,20 +74,27 @@
               </svg>
             </button>
           </div>
-          <p v-if="errors.password" class="field-error">{{ errors.password }}</p>
+          <p v-if="errors.password" class="field-error">
+            {{ errors.password }}
+          </p>
         </div>
 
         <!-- 이메일 저장 / 비밀번호 찾기 -->
         <div class="login-options">
           <label class="remember-label">
-            <input v-model="rememberEmail" type="checkbox" class="remember-checkbox" />
+            <input
+              v-model="rememberEmail"
+              type="checkbox"
+              class="remember-checkbox"
+            />
             <span>이메일 저장</span>
           </label>
-          <a href="#" class="find-password">비밀번호 찾기</a>
         </div>
 
         <!-- 공통 에러 -->
-        <p v-if="errors.general" class="field-error general-error">{{ errors.general }}</p>
+        <p v-if="errors.general" class="field-error general-error">
+          {{ errors.general }}
+        </p>
 
         <!-- 로그인 버튼 -->
         <button class="login-btn" @click="handleLogin">로그인</button>
@@ -128,7 +151,10 @@ const handleLogin = async () => {
     }
     const user = res.data[0];
     localStorage.setItem('loggedIn', 'true');
-    localStorage.setItem('auth', JSON.stringify({ id: user.id, name: user.name, email: user.email }));
+    localStorage.setItem(
+      'auth',
+      JSON.stringify({ id: user.id, name: user.name, email: user.email }),
+    );
     userStore.userInfo.id = user.id;
     userStore.userInfo.name = user.name;
     userStore.userInfo.email = user.email;
@@ -235,7 +261,9 @@ const handleLogin = async () => {
   color: #111827;
   background: #ffffff;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
   box-sizing: border-box;
 }
 
@@ -342,7 +370,9 @@ const handleLogin = async () => {
   border-radius: 12px;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(34, 197, 94, 0.35);
-  transition: opacity 0.15s, transform 0.1s;
+  transition:
+    opacity 0.15s,
+    transform 0.1s;
   margin-top: 4px;
 }
 
