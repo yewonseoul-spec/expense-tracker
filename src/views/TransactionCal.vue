@@ -1,10 +1,18 @@
 <script setup>
-import { useRouter } from 'vue-router';
 import { ref, computed, onMounted, watch } from 'vue';
 import { useTransactionStore } from '@/stores/transactionStore';
+import { useUserStore } from '@/stores/user';
+import TransactionForm from '@/components/TransactionForm.vue';
+import TransactionDetail from '@/components/TransactionDetail.vue';
 
-const router = useRouter();
 const transactionStore = useTransactionStore();
+const userStore = useUserStore();
+const userId = computed(() => userStore.userInfo.id);
+
+const props = defineProps({ isBackground: Boolean });
+
+const selectedDay = ref(null);
+const editingTransaction = ref(null);
 
 const currentDate = ref(new Date());
 const selectedCategories = ref(['전체']);
@@ -21,7 +29,7 @@ const categoryList = [
   { name: '통신', icon: '📱', color: '#3949ab' },
   { name: '교육', icon: '📚', color: '#689f38' },
   { name: '여행', icon: '✈️', color: '#0288d1' },
-  { name: '기타', icon: '📌', color: '#616161' }
+  { name: '기타', icon: '📌', color: '#616161' },
 ];
 
 function toggleCategory(name) {
@@ -29,11 +37,14 @@ function toggleCategory(name) {
     selectedCategories.value = ['전체'];
     return;
   }
-  selectedCategories.value = selectedCategories.value.filter(c => c !== '전체');
+  selectedCategories.value = selectedCategories.value.filter(
+    (c) => c !== '전체',
+  );
   const idx = selectedCategories.value.indexOf(name);
   if (idx > -1) selectedCategories.value.splice(idx, 1);
   else selectedCategories.value.push(name);
-  if (selectedCategories.value.length === 0) selectedCategories.value = ['전체'];
+  if (selectedCategories.value.length === 0)
+    selectedCategories.value = ['전체'];
 }
 
 const categories = {
@@ -47,7 +58,7 @@ const categories = {
   통신: { bg: '#e8eaf6', color: '#283593' },
   교육: { bg: '#e8f5e9', color: '#2e7d32' },
   여행: { bg: '#e1f5fe', color: '#0277bd' },
-  기타: { bg: '#eceff1', color: '#37474f' }
+  기타: { bg: '#eceff1', color: '#37474f' },
 };
 
 function formatToYYYYMMDD(dateInput) {
@@ -55,20 +66,23 @@ function formatToYYYYMMDD(dateInput) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-onMounted(() => transactionStore.getMonth(currentDate.value, '1'));
-watch(currentDate, newDate => transactionStore.getMonth(newDate, '1'));
+onMounted(() => { if (!props.isBackground && userId.value) transactionStore.getMonth(currentDate.value, userId.value); });
+watch(currentDate, (newDate) => { if (!props.isBackground && userId.value) transactionStore.getMonth(newDate, userId.value); });
+watch(userId, (newId) => { if (!props.isBackground && newId) transactionStore.getMonth(currentDate.value, newId); });
 
 const transactions = computed(() =>
-  Array.isArray(transactionStore.userMonth) ? transactionStore.userMonth : []
+  Array.isArray(transactionStore.userMonth) ? transactionStore.userMonth : [],
 );
 
 const transactionsByDate = computed(() => {
   const map = {};
-  transactions.value.forEach(t => {
+  transactions.value.forEach((t) => {
     const dateKey = formatToYYYYMMDD(t.date);
     const isIncome = t.type === 'income';
     if (!selectedCategories.value.includes('전체')) {
-      const match = selectedCategories.value.includes(t.categoryName) || (isIncome && selectedCategories.value.includes('수입'));
+      const match =
+        selectedCategories.value.includes(t.categoryName) ||
+        (isIncome && selectedCategories.value.includes('수입'));
       if (!match) return;
     }
     if (!map[dateKey]) map[dateKey] = [];
@@ -77,9 +91,15 @@ const transactionsByDate = computed(() => {
   return map;
 });
 
-function formatDate(year, month, day) { return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`; }
-function getDaysInMonth(year, month) { return new Date(year, month + 1, 0).getDate(); }
-function getStartDay(year, month) { return new Date(year, month, 1).getDay(); }
+function formatDate(year, month, day) {
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+function getDaysInMonth(year, month) {
+  return new Date(year, month + 1, 0).getDate();
+}
+function getStartDay(year, month) {
+  return new Date(year, month, 1).getDay();
+}
 
 const calendarDays = computed(() => {
   const year = currentDate.value.getFullYear();
@@ -94,27 +114,113 @@ const calendarDays = computed(() => {
     const dateStr = formatDate(year, month, i);
     const dayTransactions = transactionsByDate.value[dateStr] || [];
     const grouped = {};
-    dayTransactions.forEach(t => {
+    dayTransactions.forEach((t) => {
       const key = t.type === 'income' ? '수입' : t.categoryName;
       if (!grouped[key]) grouped[key] = { categoryName: key, amount: 0 };
       grouped[key].amount += Number(t.amount) * (t.type === 'income' ? 1 : -1);
     });
     const mergedTransactions = Object.values(grouped);
     const total = mergedTransactions.reduce((sum, t) => sum + t.amount, 0);
-    days.push({ day: i, date: dateStr, transactions: mergedTransactions, total });
+    days.push({
+      day: i,
+      date: dateStr,
+      transactions: mergedTransactions,
+      total,
+    });
   }
 
   while (days.length < 42) days.push(null);
   return days;
 });
 
-function prevMonth() { currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1); }
-function nextMonth() { currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1); }
+function prevMonth() {
+  currentDate.value = new Date(
+    currentDate.value.getFullYear(),
+    currentDate.value.getMonth() - 1,
+  );
+}
+function nextMonth() {
+  currentDate.value = new Date(
+    currentDate.value.getFullYear(),
+    currentDate.value.getMonth() + 1,
+  );
+}
 
 async function selectDay(day) {
   if (!day) return;
-  await transactionStore.getDate(day.date, '1');
-  router.push({ name: 'TransactionList', params: { date: day.date } });
+  if (selectedDay.value?.date === day.date) {
+    selectedDay.value = null;
+    return;
+  }
+  await transactionStore.getDate(day.date, userId.value);
+  selectedDay.value = day;
+}
+
+const categoryList2 = [
+  { name: '전체', icon: '📊', color: '#455a64' },
+  { name: '수입', icon: '💰', color: '#2e7d32' },
+  { name: '식비', icon: '🍔', color: '#d32f2f' },
+  { name: '카페·간식', icon: '☕', color: '#f57c00' },
+  { name: '교통', icon: '🚌', color: '#1976d2' },
+  { name: '쇼핑', icon: '🛍️', color: '#8e24aa' },
+  { name: '의료·건강', icon: '💊', color: '#009688' },
+  { name: '문화·여가', icon: '🎬', color: '#7b1fa2' },
+  { name: '통신', icon: '📱', color: '#3949ab' },
+  { name: '교육', icon: '📚', color: '#689f38' },
+  { name: '여행', icon: '✈️', color: '#0288d1' },
+  { name: '기타', icon: '📌', color: '#616161' },
+];
+
+function getCategory(name) {
+  const c = categoryList2.find((cat) => cat.name === name);
+  return c ? { bg: '#fff', color: c.color } : { bg: '#eee', color: '#333' };
+}
+
+function getCategoryIcon(name) {
+  const c = categoryList2.find((cat) => cat.name === name);
+  return c ? c.icon : '📌';
+}
+
+function openEdit(t) {
+  editingTransaction.value = t;
+}
+
+function closeEdit() {
+  editingTransaction.value = null;
+}
+
+const selectedDayDate = computed(() => {
+  if (!selectedDay.value) return null;
+  const d = new Date(selectedDay.value.date);
+  return {
+    monthDay: `${d.getMonth() + 1}월 ${d.getDate()}일`,
+    year: d.getFullYear(),
+  };
+});
+
+async function refreshSelectedDay() {
+  if (!selectedDay.value) return;
+  await transactionStore.getDate(selectedDay.value.date, userId);
+  if (transactionStore.userData.length === 0) {
+    selectedDay.value = null;
+  }
+}
+
+async function handleSaved() {
+  editingTransaction.value = null;
+  await refreshSelectedDay();
+  await transactionStore.getMonth(currentDate.value, userId.value);
+}
+
+async function handleDeleted(id) {
+  if (!confirm('정말 삭제하시겠습니까?')) return;
+  await transactionStore.deleteTransaction(id);
+  editingTransaction.value = null;
+  await transactionStore.getDate(selectedDay.value.date, userId);
+  await transactionStore.getMonth(currentDate.value, userId.value);
+  if (transactionStore.userData.length === 0) {
+    selectedDay.value = null;
+  }
 }
 </script>
 
@@ -122,33 +228,60 @@ async function selectDay(day) {
   <div class="container">
     <div class="header">
       <button @click="prevMonth">◀</button>
-      <h2>{{ currentDate.getFullYear() }}년 {{ currentDate.getMonth() + 1 }}월</h2>
+      <h2>
+        {{ currentDate.getFullYear() }}년 {{ currentDate.getMonth() + 1 }}월
+      </h2>
       <button @click="nextMonth">▶</button>
     </div>
 
     <div class="category-filter">
-      <button v-for="c in categoryList" :key="c.name" @click="toggleCategory(c.name)"
+      <button
+        v-for="c in categoryList"
+        :key="c.name"
+        @click="toggleCategory(c.name)"
         :class="{ active: selectedCategories.includes(c.name) }"
-        :style="{ borderColor: c.color, background: selectedCategories.includes(c.name) ? c.color : 'white', color: selectedCategories.includes(c.name) ? 'white' : c.color }">
+        :style="{
+          borderColor: c.color,
+          background: selectedCategories.includes(c.name) ? c.color : 'white',
+          color: selectedCategories.includes(c.name) ? 'white' : c.color,
+        }"
+      >
         {{ c.icon }} {{ c.name }}
       </button>
     </div>
 
     <div class="calendar">
       <div class="weekdays">
-        <div v-for="d in ['일', '월', '화', '수', '목', '금', '토']" :key="d">{{ d }}</div>
+        <div v-for="d in ['일', '월', '화', '수', '목', '금', '토']" :key="d">
+          {{ d }}
+        </div>
       </div>
 
       <div class="grid">
-        <div v-for="(day, index) in calendarDays" :key="index" class="cell" @click="selectDay(day)">
+        <div
+          v-for="(day, index) in calendarDays"
+          :key="index"
+          class="cell"
+          @click="selectDay(day)"
+        >
           <div v-if="day">
             <div class="date">{{ day.day }}</div>
-            <div class="total" :class="{ plus: day.total > 0, minus: day.total < 0 }">
+            <div
+              class="total"
+              :class="{ plus: day.total > 0, minus: day.total < 0 }"
+            >
               {{ day.total !== 0 ? day.total.toLocaleString() : '' }}
             </div>
             <div class="items">
-              <div v-for="(t, i) in day.transactions" :key="i" class="item"
-                :style="{ background: categories[t.categoryName]?.bg, color: categories[t.categoryName]?.color }">
+              <div
+                v-for="(t, i) in day.transactions"
+                :key="i"
+                class="item"
+                :style="{
+                  background: categories[t.categoryName]?.bg,
+                  color: categories[t.categoryName]?.color,
+                }"
+              >
                 <span>{{ t.categoryName }}</span>
                 <span>{{ Math.abs(t.amount).toLocaleString() }}</span>
               </div>
@@ -159,6 +292,32 @@ async function selectDay(day) {
     </div>
 
     <router-view />
+
+    <!-- 날짜 클릭 시 거래 상세 리스트 -->
+    <div v-if="selectedDay && !editingTransaction" class="detail-panel">
+      <div class="detail-header">
+        <span class="detail-date">{{ selectedDayDate?.monthDay }}</span>
+        <button class="detail-close" @click="selectedDay = null">✕</button>
+      </div>
+      <TransactionDetail
+        v-for="t in transactionStore.userData"
+        :key="t.id"
+        :t="t"
+        :categoryColors="getCategory(t.categoryName)"
+        :icon="getCategoryIcon(t.categoryName)"
+        @edit="openEdit"
+        @delete="handleDeleted"
+      />
+    </div>
+
+    <!-- 수정 폼 오버레이 -->
+    <div v-if="editingTransaction" class="form-overlay">
+      <TransactionForm
+        :editData="editingTransaction"
+        @close="closeEdit"
+        @saved="handleSaved"
+      />
+    </div>
   </div>
 </template>
 
@@ -226,6 +385,44 @@ async function selectDay(day) {
   font-weight: 600;
 }
 
+.detail-panel {
+  position: fixed;
+  right: 0;
+  top: 120px;
+  width: 420px;
+  max-height: calc(100vh - 140px);
+  background: white;
+  border-radius: 12px 0 0 12px;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.12);
+  padding: 16px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #3f8f73;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.detail-date {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.detail-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
 .item {
   font-size: 11px;
   padding: 2px 4px;
@@ -233,5 +430,17 @@ async function selectDay(day) {
   display: flex;
   justify-content: space-between;
   margin-top: 2px;
+}
+
+.form-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 116px 16px 24px;
+  overflow-y: auto;
 }
 </style>

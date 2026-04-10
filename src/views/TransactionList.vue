@@ -23,12 +23,14 @@
 <script setup>
 import TransactionDetail from '@/components/TransactionDetail.vue';
 import { useTransactionStore } from '@/stores/transactionStore';
+import { useUserStore } from '@/stores/user';
 import { onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const transactionStore = useTransactionStore();
 const router = useRouter();
 const route = useRoute();
+const userId = useUserStore().userInfo.id;
 
 const date = route.params.date;
 
@@ -48,7 +50,7 @@ const categories = [
     { name: '기타', icon: '📌', color: '#616161' }
 ];
 
-onMounted(() => transactionStore.getDate(date, '1'));
+onMounted(() => transactionStore.getDate(date, userId));
 
 const closeModal = () => router.push({ name: 'TransactionCal' });
 
@@ -80,8 +82,8 @@ const editTransaction = (t) => router.push({ name: 'EditTransaction', params: { 
 const deleteTransaction = async (id) => {
     if (confirm('정말 삭제하시겠습니까?')) {
         await transactionStore.deleteTransaction(id);
-        await transactionStore.getDate(date, '1');
-        await transactionStore.getMonth(new Date(date), '1');
+        await transactionStore.getDate(date, userId);
+        await transactionStore.getMonth(new Date(date), userId);
     }
 };
 </script>

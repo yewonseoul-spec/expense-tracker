@@ -92,9 +92,11 @@
 import { ref, reactive } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
+import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
 const route = useRoute();
+const userStore = useUserStore();
 
 const email = ref(route.query.email || '');
 const password = ref('');
@@ -127,6 +129,9 @@ const handleLogin = async () => {
     const user = res.data[0];
     localStorage.setItem('loggedIn', 'true');
     localStorage.setItem('auth', JSON.stringify({ id: user.id, name: user.name, email: user.email }));
+    userStore.userInfo.id = user.id;
+    userStore.userInfo.name = user.name;
+    userStore.userInfo.email = user.email;
     router.push('/Home');
   } catch {
     errors.general = '서버 연결에 실패했습니다.';
