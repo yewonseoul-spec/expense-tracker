@@ -1,6 +1,10 @@
 <template>
   <div class="form-page">
-    <TransactionForm :default-date="defaultDate" @close="goBack" @saved="goBack" />
+    <TransactionForm
+      :default-date="defaultDate"
+      @close="goBack"
+      @saved="goBack"
+    />
   </div>
 </template>
 
