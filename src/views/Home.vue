@@ -134,6 +134,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useTransactionStore } from '@/stores/transactionStore';
+import { useUserStore } from '@/stores/user'; // 사용자 정보
 import { useSettingsStore } from '@/stores/settings';
 import { formatMoney } from '@/utils/formatter';
 
@@ -161,32 +162,58 @@ ChartJS.register(
 );
 
 const store = useTransactionStore();
+const userStore = useUserStore();
+const currentUserId = computed(() => userStore.userId);
 
 // 데이터 초기 로드
-onMounted(() => {
-  store.fetchData();
+onMounted(async () => {
+  // 1. 유저 정보가 없으면 DB에서 가져오기
+  if (!currentUserId.value) {
+    await userStore.fetchUserInfo();
+  }
+
+  // 2. 유저가 확인되면 가계부 데이터 가져오기
+  if (currentUserId.value) {
+    store.fetchData();
+  }
 });
 
-// 날짜 변경 감시
+// 날짜 / 사용자 변경 감시
 watch(
-  () => [store.currentYear, store.currentMonth],
-  () => {
-    store.fetchData();
+  () => [store.currentYear, store.currentMonth, currentUserId.value],
+  async ([year, month, userId]) => {
+    if (userId) {
+      await store.fetchData();
+    }
   },
 );
 
-const totalIncome = computed(() => store.monthlyIncome || 0);
-const totalExpense = computed(() => store.monthlyExpense || 0);
+const totalIncome = computed(() => {
+  return filteredTransactions.value
+    .filter((t) => t.type === 'income')
+    .reduce((sum, t) => sum + Number(t.amount), 0);
+});
+
+const totalExpense = computed(() => {
+  return filteredTransactions.value
+    .filter((t) => t.type === 'expense')
+    .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
+});
 
 // 필터링된 내역
 const filteredTransactions = computed(() => {
-  if (!store.transactions) return [];
+  if (!store.transactions || !currentUserId.value) return [];
 
   return (
     store.transactions
       .filter((t) => {
+        //  사용자 id 체크
+        const idCheck = String(t.userId) === String(currentUserId.value);
+        // 날짜 체크
         const [y, m] = t.date.split('-').map(Number);
-        return y === store.currentYear && m === store.currentMonth;
+        const isDate = y === store.currentYear && m === store.currentMonth;
+
+        return idCheck && isDate;
       })
       // 일자별 내림차순 정렬
       .sort((a, b) => new Date(b.date) - new Date(a.date))
@@ -216,21 +243,22 @@ const chartData = computed(() => {
   // 데이터 합산 (store.transactions 직접 참조)
   if (store.transactions) {
     store.transactions.forEach((item) => {
+      // 현재 사용자 데이터만 합산되도록 체크
+      if (String(item.userId) !== String(currentUserId.value)) return;
+
       const itemDate = new Date(item.date);
-      targetMonths.forEach((target, index) => {
-        if (
-          itemDate.getFullYear() === target.getFullYear() &&
-          itemDate.getMonth() === target.getMonth()
-        ) {
-          const amt = Number(item.amount);
-          if (item.type === 'income') {
-            // 수익인 경우
-            incomeData[index] += amt;
-          } else {
-            expenseData[index] += Math.abs(amt);
-          }
+      const itemYear = itemDate.getFullYear();
+      const itemMonth = itemDate.getMonth();
+
+      if (itemYear === store.currentYear && itemMonth < monthCount) {
+        const amt = Number(item.amount);
+        if (item.type === 'income') {
+          // 수익인 경우
+          incomeData[itemMonth] += amt;
+        } else {
+          expenseData[itemMonth] += Math.abs(amt);
         }
-      });
+      }
     });
   }
 
@@ -347,7 +375,7 @@ const toggleList = () => {
 .container {
   min-height: 100vh;
   background-color: transparent;
-  padding: 100px 20px 40px 20px;
+  padding: 20px 20px 40px 20px;
   width: 100%;
   display: flex;
   justify-content: center;
