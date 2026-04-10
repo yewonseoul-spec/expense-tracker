@@ -263,8 +263,10 @@ const displayAmount = (amount) => {
         :class="{ active: selectedCategories.includes(c.name) }"
         :style="{
           borderColor: c.color,
-          background: selectedCategories.includes(c.name) ? c.color : 'white',
-          color: selectedCategories.includes(c.name) ? 'white' : c.color,
+          background: selectedCategories.includes(c.name)
+            ? c.color
+            : 'transparent',
+          color: selectedCategories.includes(c.name) ? '#ffffff' : c.color,
         }"
       >
         {{ c.icon }} {{ c.name }}
@@ -352,6 +354,15 @@ const displayAmount = (amount) => {
   display: flex;
   justify-content: space-between;
   margin: 30px 0 15px;
+  color: var(--text-primary);
+}
+
+.header button {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 18px;
 }
 
 .category-filter {
@@ -377,7 +388,7 @@ const displayAmount = (amount) => {
 .weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  background: #3f8f73;
+  background: var(--color-success);
   color: white;
   text-align: center;
   padding: 10px 0;
@@ -390,19 +401,21 @@ const displayAmount = (amount) => {
 }
 
 .cell {
-  border: 1px solid #eee;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-primary);
   padding: 5px;
   box-sizing: border-box;
   cursor: pointer;
 }
 
 .total.plus {
-  color: green;
+  color: var(--color-success);
   font-weight: 600;
 }
 
 .total.minus {
-  color: red;
+  color: var(--color-danger);
   font-weight: 600;
 }
 
@@ -424,8 +437,8 @@ const displayAmount = (amount) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #3f8f73;
-  color: white;
+  background-color: var(--card-bg);
+  color: var(--text-primary);
   padding: 10px 14px;
   border-radius: 8px;
   margin-bottom: 8px;
@@ -463,5 +476,32 @@ const displayAmount = (amount) => {
   justify-content: center;
   padding: 116px 16px 24px;
   overflow-y: auto;
+}
+
+html.dark .weekdays {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+html.dark .item {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid currentColor;
+  filter: brightness(2.5) saturate(1.2);
+
+  font-weight: 600;
+}
+
+html.dark .category-filter button {
+  filter: brightness(2);
+}
+
+html.dark .detail-panel {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+html.dark .detail-header {
+  border: 1px solid var(--border-color);
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.5);
 }
 </style>
