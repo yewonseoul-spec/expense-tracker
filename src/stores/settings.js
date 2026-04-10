@@ -17,7 +17,7 @@ export const useSettingsStore = defineStore('settings', () => {
 
   // --- 다크모드 설정 로직 ---
   // localStorage에서 문자열 'true'를 불리언(Boolean)으로 변환하여 초기화
-  const isDarkMode = ref(localStorage.getItem('darkMode') === 'false');
+  const isDarkMode = ref(localStorage.getItem('darkMode') === 'true');
 
   const toggleDarkMode = () => {
     isDarkMode.value = !isDarkMode.value;
