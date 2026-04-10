@@ -397,16 +397,6 @@
       "userId": 1
     },
     {
-      "id": "39",
-      "date": "2026-04-20",
-      "type": "expense",
-      "categoryName": "식비",
-      "amount": 13000,
-      "memo": "저녁",
-      "paymentMethod": "현금",
-      "userId": 1
-    },
-    {
       "id": "40",
       "date": "2026-04-20",
       "type": "expense",

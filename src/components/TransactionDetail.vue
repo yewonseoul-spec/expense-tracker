@@ -8,10 +8,12 @@
                     {{ t.categoryName }}
                 </span>
             </div>
-            <span class="date">{{ t.date }}</span>
+            <span class="note">{{ t.note }}</span>
         </div>
 
         <div class="middle">
+            {{ t.memo }}
+            <br>
             <span class="amount" :class="t.type">
                 {{ t.type === 'income' ? '+' : '-' }}
                 {{ Number(t.amount).toLocaleString() }}원
@@ -19,7 +21,7 @@
         </div>
 
         <div class="bottom">
-            {{ t.memo }}
+            {{ t.paymentMethod }}
         </div>
 
         <div class="actions">
@@ -77,7 +79,7 @@ const props = defineProps({
     font-weight: bold;
 }
 
-.date {
+.note {
     font-size: 12px;
     opacity: 0.6;
 }
