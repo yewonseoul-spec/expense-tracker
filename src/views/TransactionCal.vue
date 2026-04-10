@@ -1,11 +1,11 @@
 <script setup>
-import { useRouter } from 'vue-router';
 import { ref, computed, onMounted, watch } from 'vue';
 import { useTransactionStore } from '@/stores/transactionStore';
 import { useSettingsStore } from '@/stores/settings';
 import { formatMoney } from '@/utils/formatter';
+import TransactionForm from '@/components/TransactionForm.vue';
+import TransactionDetail from '@/components/TransactionDetail.vue';
 
-const router = useRouter();
 const transactionStore = useTransactionStore();
 const settingsStore = useSettingsStore();
 
@@ -140,10 +140,84 @@ function nextMonth() {
   );
 }
 
+const selectedDay = ref(null);
+const editingTransaction = ref(null);
+
 async function selectDay(day) {
   if (!day) return;
+  if (selectedDay.value?.date === day.date) {
+    selectedDay.value = null;
+    return;
+  }
   await transactionStore.getDate(day.date, '1');
-  router.push({ name: 'TransactionList', params: { date: day.date } });
+  selectedDay.value = day;
+}
+
+const categoryList2 = [
+  { name: '전체', icon: '📊', color: '#455a64' },
+  { name: '수입', icon: '💰', color: '#2e7d32' },
+  { name: '식비', icon: '🍔', color: '#d32f2f' },
+  { name: '카페·간식', icon: '☕', color: '#f57c00' },
+  { name: '교통', icon: '🚌', color: '#1976d2' },
+  { name: '쇼핑', icon: '🛍️', color: '#8e24aa' },
+  { name: '의료·건강', icon: '💊', color: '#009688' },
+  { name: '문화·여가', icon: '🎬', color: '#7b1fa2' },
+  { name: '통신', icon: '📱', color: '#3949ab' },
+  { name: '교육', icon: '📚', color: '#689f38' },
+  { name: '여행', icon: '✈️', color: '#0288d1' },
+  { name: '기타', icon: '📌', color: '#616161' },
+];
+
+function getCategory(name) {
+  const c = categoryList2.find((cat) => cat.name === name);
+  return c ? { bg: '#fff', color: c.color } : { bg: '#eee', color: '#333' };
+}
+
+function getCategoryIcon(name) {
+  const c = categoryList2.find((cat) => cat.name === name);
+  return c ? c.icon : '📌';
+}
+
+function openEdit(t) {
+  editingTransaction.value = t;
+}
+
+function closeEdit() {
+  editingTransaction.value = null;
+}
+
+const selectedDayDate = computed(() => {
+  if (!selectedDay.value) return null;
+  const d = new Date(selectedDay.value.date);
+  return {
+    monthDay: `${d.getMonth() + 1}월 ${d.getDate()}일`,
+    year: d.getFullYear(),
+  };
+});
+
+async function refreshSelectedDay() {
+  if (!selectedDay.value) return;
+  await transactionStore.getDate(selectedDay.value.date, '1');
+  if (transactionStore.userData.value.length === 0) {
+    selectedDay.value = null;
+  }
+}
+
+async function handleSaved() {
+  editingTransaction.value = null;
+  await refreshSelectedDay();
+  await transactionStore.getMonth(currentDate.value, '1');
+}
+
+async function handleDeleted(id) {
+  if (!confirm('정말 삭제하시겠습니까?')) return;
+  await transactionStore.deleteTransaction(id);
+  editingTransaction.value = null;
+  await transactionStore.getDate(selectedDay.value.date, '1');
+  await transactionStore.getMonth(currentDate.value, '1');
+  if (transactionStore.userData.value.length === 0) {
+    selectedDay.value = null;
+  }
 }
 </script>
 
@@ -185,6 +259,10 @@ async function selectDay(day) {
           v-for="(day, index) in calendarDays"
           :key="index"
           class="cell"
+          :class="{
+            'cell--selected':
+              day && selectedDay && selectedDay.date === day.date,
+          }"
           @click="selectDay(day)"
         >
           <div v-if="day">
@@ -227,7 +305,39 @@ async function selectDay(day) {
         </div>
       </div>
     </div>
-    <router-view />
+
+    <!-- 날짜 클릭 시 거래 목록-->
+    <div v-if="selectedDay" class="list-modal" @click.self="selectedDay = null">
+      <div class="list-box">
+        <div class="list-heading">
+          <div class="list-date-display">
+            <span class="list-month-day">{{ selectedDayDate.monthDay }}</span>
+            <span class="list-year">{{ selectedDayDate.year }}</span>
+          </div>
+        </div>
+        <TransactionDetail
+          v-for="t in transactionStore.userData"
+          :key="t.id"
+          :t="t"
+          :categoryColors="getCategory(t.categoryName)"
+          :icon="getCategoryIcon(t.categoryName)"
+          @edit="openEdit"
+          @delete="handleDeleted"
+        />
+        <button class="list-close" @click="selectedDay = null">✖️</button>
+      </div>
+    </div>
+
+    <!-- 수정 폼 오버레이 -->
+    <div v-if="editingTransaction" class="edit-overlay" @click.self="closeEdit">
+      <div class="edit-wrapper">
+        <TransactionForm
+          :edit-data="editingTransaction"
+          @close="closeEdit"
+          @saved="handleSaved"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -302,5 +412,105 @@ async function selectDay(day) {
   display: flex;
   justify-content: space-between;
   margin-top: 2px;
+}
+
+.cell--selected {
+  outline: 2px solid #3f8f73;
+  outline-offset: -2px;
+  background: #f0fdf4;
+}
+
+/* ── 날짜 목록 모달 (TransactionList 동일 스타일) ── */
+.list-modal {
+  display: block;
+  position: fixed;
+  z-index: 1;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.list-box {
+  background-color: white;
+  position: absolute;
+  right: 0;
+  top: 120px;
+  width: 500px;
+  min-height: 900px;
+  padding: 10px;
+  border-radius: 10px;
+  overflow-y: auto;
+}
+
+.list-heading {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  background: #33a17f;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.list-date-display {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.list-month-day {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.list-year {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.list-close {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: #9e9e9e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 100;
+}
+
+.list-close:hover {
+  opacity: 0.85;
+}
+
+/* ── 수정 오버레이 ── */
+.edit-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.edit-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 480px;
 }
 </style>

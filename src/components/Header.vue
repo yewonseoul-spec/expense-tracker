@@ -22,7 +22,7 @@
       </RouterLink>
 
       <!-- ──날짜 선택기 ── -->
-      <div class="date-selector">
+      <div v-if="showDateSelector" class="date-selector">
         <button class="arrow-btn" @click="store.prevMonth()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path
@@ -106,13 +106,26 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTransactionStore } from '@/stores/transactionStore';
 
 const route = useRoute();
 const router = useRouter();
 const store = useTransactionStore();
+
+const prevRouteName = ref(null);
+watch(() => route.name, (newName, oldName) => {
+  if (newName === 'TransactionAdd') {
+    prevRouteName.value = oldName;
+  }
+});
+
+const showDateSelector = computed(() => {
+  if (route.name === 'TransactionCal') return false;
+  if (route.name === 'TransactionAdd' && prevRouteName.value === 'TransactionCal') return false;
+  return true;
+});
 
 const handleLogout = () => {
   localStorage.removeItem('loggedIn');

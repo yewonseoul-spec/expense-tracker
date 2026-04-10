@@ -120,13 +120,14 @@
       "userId": "1"
     },
     {
-      "id": "15",
-      "date": "2026-04-09",
       "type": "expense",
-      "categoryName": "식비",
-      "amount": 11000,
+      "amount": 13000,
       "memo": "저녁",
-      "userId": "1"
+      "date": "2026-04-09",
+      "categoryName": "식비",
+      "paymentMethod": "체크카드",
+      "note": "배달 시켜먹음",
+      "id": "15"
     },
     {
       "id": "16",
@@ -291,13 +292,14 @@
       "userId": "1"
     },
     {
-      "id": "36",
-      "date": "2026-04-30",
       "type": "expense",
-      "categoryName": "식비",
-      "amount": 12000,
+      "amount": 13000,
       "memo": "저녁",
-      "userId": "1"
+      "date": "2026-04-30",
+      "categoryName": "식비",
+      "paymentMethod": "카카오페이",
+      "note": "",
+      "id": "36"
     },
     {
       "id": "37",
@@ -343,6 +345,26 @@
       "amount": 5000,
       "memo": "주스",
       "userId": "1"
+    },
+    {
+      "type": "expense",
+      "amount": 5000,
+      "memo": "택시",
+      "date": "2026-04-10",
+      "categoryName": "교통",
+      "paymentMethod": "신용카드",
+      "note": "택시탔음",
+      "id": "d0E9u0NFgzg"
+    },
+    {
+      "type": "income",
+      "amount": 10000,
+      "memo": "용돈",
+      "date": "2026-04-01",
+      "categoryName": "용돈",
+      "paymentMethod": "현금",
+      "note": "엄마한테 용돈받음",
+      "id": "LL6ajL9FsXE"
     }
   ],
   "Categories": [
