@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 
@@ -11,6 +11,19 @@ const userStore = useUserStore();
 const navigateTo = (path) => {
   router.push(path);
 };
+
+const todayDate = computed(() => {
+  const date = new Date();
+
+  const formatter = new Intl.DateTimeFormat('en-GB', {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  return formatter.format(date);
+});
 
 onMounted(async () => {
   await userStore.fetchUserInfo();
@@ -101,8 +114,11 @@ onMounted(async () => {
       <main class="main-content">
         <header class="header">
           <div class="greeting-box">
-            <h1 class="title">Welcome, Lee</h1>
-            <p class="date">Wed, 08 April 2026</p>
+            <h1 class="title">
+              Welcome,
+              {{ userStore.userInfo.nickname || userStore.userInfo.name }}
+            </h1>
+            <p class="date">{{ todayDate }}</p>
           </div>
           <img
             class="profile-img"
