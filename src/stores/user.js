@@ -18,9 +18,7 @@ export const useUserStore = defineStore('user', () => {
 
   const isLoading = ref(false);
 
-  const profileImage = ref(
-    localStorage.getItem('userProfileImage') || 'https://placehold.co/100x100',
-  );
+  const profileImage = ref('https://placehold.co/100x100');
 
   // DB에서 최신 데이터를 가져오는 액션
   const fetchUserInfo = async () => {
