@@ -16,21 +16,28 @@ export const useUserStore = defineStore('user', () => {
     timezone: 'KST / UTC+09:00',
   });
 
+  const isLoading = ref(false);
+
   const profileImage = ref(
     localStorage.getItem('userProfileImage') || 'https://placehold.co/100x100',
   );
 
   // DB에서 최신 데이터를 가져오는 액션
   const fetchUserInfo = async () => {
-    if (!userInfo.value.id) {
-      const auth = JSON.parse(localStorage.getItem('auth'));
-      if (auth && auth.id) {
-        userInfo.value.id = auth.id;
-      } else {
-        return;
-      }
-    }
+    if (isLoading.value) return;
+
+    isLoading.value = true;
+
     try {
+      if (!userInfo.value.id) {
+        const auth = JSON.parse(localStorage.getItem('auth'));
+        if (auth && auth.id) {
+          userInfo.value.id = auth.id;
+        } else {
+          return;
+        }
+      }
+
       const res = await axios.get(
         `http://localhost:3000/users/${userInfo.value.id}`,
       );
@@ -39,6 +46,8 @@ export const useUserStore = defineStore('user', () => {
         res.data.profileImage || 'https://placehold.co/100x100';
     } catch (error) {
       console.error('유저 정보 가져오기 실패:', error);
+    } finally {
+      isLoading.value = false;
     }
   };
 
@@ -121,6 +130,7 @@ export const useUserStore = defineStore('user', () => {
   return {
     userId,
     userInfo,
+    isLoading,
     profileImage,
     fetchUserInfo,
     saveProfileToDB,
