@@ -45,36 +45,6 @@
           </p>
         </div>
 
-        <!-- 성별 -->
-        <div class="field-group">
-          <label class="field-label">성별</label>
-          <div class="gender-group">
-            <button
-              type="button"
-              class="gender-btn"
-              :class="{ 'gender-btn--active': gender === '남성' }"
-              @click="
-                gender = '남성';
-                errors.gender = '';
-              "
-            >
-              남성
-            </button>
-            <button
-              type="button"
-              class="gender-btn"
-              :class="{ 'gender-btn--active': gender === '여성' }"
-              @click="
-                gender = '여성';
-                errors.gender = '';
-              "
-            >
-              여성
-            </button>
-          </div>
-          <p v-if="errors.gender" class="field-error">{{ errors.gender }}</p>
-        </div>
-
         <!-- 이메일 -->
         <div class="field-group">
           <label class="field-label">이메일</label>

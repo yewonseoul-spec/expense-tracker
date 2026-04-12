@@ -16,21 +16,26 @@ export const useUserStore = defineStore('user', () => {
     timezone: 'KST / UTC+09:00',
   });
 
-  const profileImage = ref(
-    localStorage.getItem('userProfileImage') || 'https://placehold.co/100x100',
-  );
+  const isLoading = ref(false);
+
+  const profileImage = ref('https://placehold.co/100x100');
 
   // DB에서 최신 데이터를 가져오는 액션
   const fetchUserInfo = async () => {
-    if (!userInfo.value.id) {
-      const auth = JSON.parse(localStorage.getItem('auth'));
-      if (auth && auth.id) {
-        userInfo.value.id = auth.id;
-      } else {
-        return;
-      }
-    }
+    if (isLoading.value) return;
+
+    isLoading.value = true;
+
     try {
+      if (!userInfo.value.id) {
+        const auth = JSON.parse(localStorage.getItem('auth'));
+        if (auth && auth.id) {
+          userInfo.value.id = auth.id;
+        } else {
+          return;
+        }
+      }
+
       const res = await axios.get(
         `http://localhost:3000/users/${userInfo.value.id}`,
       );
@@ -39,6 +44,8 @@ export const useUserStore = defineStore('user', () => {
         res.data.profileImage || 'https://placehold.co/100x100';
     } catch (error) {
       console.error('유저 정보 가져오기 실패:', error);
+    } finally {
+      isLoading.value = false;
     }
   };
 
@@ -96,13 +103,37 @@ export const useUserStore = defineStore('user', () => {
     profileImage.value = 'https://placehold.co/100x100';
   };
 
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/users/${userInfo.value.id}`,
+      );
+      const user = res.data;
+
+      if (user.password !== currentPassword) {
+        return { success: false, message: '현재 비밀번호가 틀렸습니다.' };
+      }
+
+      await axios.patch(`http://localhost:3000/users/${userInfo.value.id}`, {
+        password: newPassword,
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('비밀번호 변경 API 실패:', error);
+      return { success: false, message: '서버 오류가 발생했습니다.' };
+    }
+  };
+
   return {
     userId,
     userInfo,
+    isLoading,
     profileImage,
     fetchUserInfo,
     saveProfileToDB,
     updateProfileImage,
     reset,
+    changePassword,
   };
 });

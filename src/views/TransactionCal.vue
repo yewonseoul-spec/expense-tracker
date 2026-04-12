@@ -452,7 +452,7 @@ const displayAmount = (amount) => {
 .detail-close {
   background: none;
   border: none;
-  color: white;
+  color: var(--text-primary);
   font-size: 16px;
   cursor: pointer;
 }
