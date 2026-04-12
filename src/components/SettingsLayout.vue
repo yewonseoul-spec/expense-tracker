@@ -1,4 +1,5 @@
 <script setup>
+import { onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 
@@ -10,11 +11,32 @@ const userStore = useUserStore();
 const navigateTo = (path) => {
   router.push(path);
 };
+
+const todayDate = computed(() => {
+  const date = new Date();
+
+  const formatter = new Intl.DateTimeFormat('en-GB', {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  return formatter.format(date);
+});
+
+onMounted(async () => {
+  await userStore.fetchUserInfo();
+});
 </script>
 
 <template>
   <div class="settings-layout">
-    <div class="layout-wrapper">
+    <div v-if="userStore.isLoading" class="loading-overlay">
+      <div class="spinner"></div>
+      <p>로딩중...</p>
+    </div>
+    <div v-else class="layout-wrapper">
       <aside class="sidebar">
         <div class="menu-item" @click="navigateTo('/settings/profile')">
           <div
@@ -92,8 +114,11 @@ const navigateTo = (path) => {
       <main class="main-content">
         <header class="header">
           <div class="greeting-box">
-            <h1 class="title">Welcome, Lee</h1>
-            <p class="date">Wed, 08 April 2026</p>
+            <h1 class="title">
+              Welcome,
+              {{ userStore.userInfo.nickname || userStore.userInfo.name }}
+            </h1>
+            <p class="date">{{ todayDate }}</p>
           </div>
           <img
             class="profile-img"
@@ -126,6 +151,31 @@ const navigateTo = (path) => {
   height: calc(100vh - 66px);
   background: #f9f9f9;
   overflow: hidden;
+}
+
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: var(--text-secondary);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top-color: var(--color-info);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .layout-wrapper {

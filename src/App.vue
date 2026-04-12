@@ -38,18 +38,23 @@ import { watch, onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import Header from './components/Header.vue';
 import { useSettingsStore } from '@/stores/settings';
+import { useUserStore } from '@/stores/user';
 import Home from '@/views/Home.vue';
 import TransactionCal from '@/views/TransactionCal.vue';
 
 const route = useRoute();
 const settingsStore = useSettingsStore();
+const userStore = useUserStore();
 
 const overlayRoutes = ['TransactionAdd', 'TransactionEdit'];
 
 const prevRouteName = ref(null);
-watch(() => route.name, (newName) => {
-  if (!overlayRoutes.includes(newName)) prevRouteName.value = newName;
-});
+watch(
+  () => route.name,
+  (newName) => {
+    if (!overlayRoutes.includes(newName)) prevRouteName.value = newName;
+  },
+);
 
 const bgComponent = computed(() => {
   if (!overlayRoutes.includes(route.name)) return null;
@@ -86,6 +91,17 @@ const updateTheme = () => {
     document.documentElement.classList.remove('dark');
   }
 };
+
+const isAddButtonVisible = computed(() => {
+  if (!userStore.userInfo.id) return false;
+
+  if (route.path.includes('/settings') || route.path.includes('/login')) {
+    return false;
+  }
+
+  // 위 조건을 모두 통과하면 버튼 노출!
+  return true;
+});
 
 onMounted(() => {
   updateTheme(settingsStore.isDarkMode);
