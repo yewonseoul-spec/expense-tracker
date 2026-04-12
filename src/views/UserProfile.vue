@@ -1,13 +1,11 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useUserStore } from '@/stores/user';
 
 const userStore = useUserStore();
 const isEditing = ref(false);
 const fileInputRef = ref(null);
 const formData = ref({ ...userStore.userInfo });
-
-const isLoading = ref(true);
 
 const showPasswordModal = ref(false);
 const passwordForm = ref({
@@ -24,12 +22,6 @@ watch(
   },
   { deep: true },
 );
-
-onMounted(async () => {
-  isLoading.value = true;
-  await userStore.fetchUserInfo();
-  isLoading.value = false;
-});
 
 // --- 로직 (Functions) ---
 
@@ -142,12 +134,7 @@ const updatePassword = async () => {
   <div class="user-profile">
     <div class="profile-banner"></div>
 
-    <div v-if="isLoading" class="loading-overlay">
-      <div class="spinner"></div>
-      <p>프로필 정보를 불러오는 중</p>
-    </div>
-
-    <div v-else class="profile-content">
+    <div class="profile-content">
       <div class="profile-header">
         <div class="profile-info">
           <div class="profile-pic-container" @click="triggerImageUpload">
@@ -311,31 +298,6 @@ const updatePassword = async () => {
   height: 100px;
   background: linear-gradient(90deg, #d2e4f6 0%, #fef3d5 100%);
   flex-shrink: 0;
-}
-
-.loading-overlay {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 400px;
-  color: var(--text-secondary);
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-top-color: var(--color-info);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 /* 프로필 본문 영역 */
