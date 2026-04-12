@@ -745,6 +745,17 @@
       "paymentMethod": "체크카드",
       "note": "",
       "id": "xDP8yMh2di8"
+    },
+    {
+      "userId": "1",
+      "type": "income",
+      "amount": 50000,
+      "memo": "주식",
+      "date": "2026-04-01",
+      "categoryName": "투자·배당",
+      "paymentMethod": "신용카드",
+      "note": "삼성",
+      "id": "PZO15fip1Z4"
     }
   ],
   "Categories": [
