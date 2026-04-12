@@ -291,7 +291,7 @@ const displayAmount = (amount) => {
                 <span>{{ displayAmount(Math.abs(t.amount)) }}</span>
               </div>
 
-              <!-- 3개 초과 시 ... 표시 -->
+              <!-- more 표시 -->
               <div v-if="day.transactions.length > 3" class="more">
                 <span>+ more</span>
               </div>
