@@ -332,14 +332,15 @@
       "userId": "2"
     },
     {
-      "id": "33",
-      "date": "2026-04-17",
+      "userId": "1",
       "type": "expense",
-      "categoryName": "쇼핑",
       "amount": 20000,
       "memo": "티셔츠",
+      "date": "2026-04-17",
+      "categoryName": "쇼핑",
       "paymentMethod": "체크카드",
-      "userId": "1"
+      "note": "nike",
+      "id": "33"
     },
     {
       "id": "34",
