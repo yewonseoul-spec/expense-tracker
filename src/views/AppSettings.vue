@@ -37,21 +37,6 @@ const settingsStore = useSettingsStore();
           </div>
         </div>
       </section>
-
-      <section class="settings-category">
-        <h3 class="category-title">가계부 관리</h3>
-
-        <div class="setting-item">
-          <span class="setting-name">월 시작일 기준</span>
-          <div class="select-wrapper">
-            <select class="custom-select">
-              <option value="1">매월 1일</option>
-              <option value="10">매월 10일</option>
-              <option value="25">매월 25일</option>
-            </select>
-          </div>
-        </div>
-      </section>
     </div>
   </div>
 </template>
