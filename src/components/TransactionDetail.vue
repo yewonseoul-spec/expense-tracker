@@ -11,10 +11,12 @@
                     {{ t.categoryName }}
                 </span>
             </div>
-            <span class="date">{{ t.date }}</span>
+            <span class="note">{{ t.note }}</span>
         </div>
 
         <div class="middle">
+            <span class="memo">{{ t.memo }}</span>
+            <br>
             <span class="amount" :class="t.type">
                 {{ t.type === 'income' ? '+' : '-' }}
                 {{ displayAmount(Number(t.amount)) }}원
@@ -22,7 +24,7 @@
         </div>
 
         <div class="bottom">
-            {{ t.memo }}
+            💳 {{ t.paymentMethod }}
         </div>
 
         <div class="actions">
@@ -55,6 +57,7 @@ const displayAmount = (amount) => {
 
 <style scoped>
 .card {
+    background-color: var(--card-bg);
     border-radius: 14px;
     padding: 16px;
     margin: 12px 0;
@@ -93,14 +96,17 @@ const displayAmount = (amount) => {
     font-weight: bold;
 }
 
+.memo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
 .note {
     font-size: 12px;
     opacity: 0.6;
-}
-
-.date {
-    font-size: 12px;
-    opacity: 0.6;
+    color: var(--text-secondary);
 }
 
 .middle {
@@ -109,16 +115,16 @@ const displayAmount = (amount) => {
 }
 
 .amount.income {
-    color: #1b5e20;
+    color: var(--color-success);
 }
 
 .amount.expense {
-    color: #b71c1c;
+    color: var(--color-danger);
 }
 
 .bottom {
     font-size: 13px;
-    color: #555;
+    color: var(--text-secondary);
 }
 
 .actions {
@@ -141,12 +147,12 @@ const displayAmount = (amount) => {
 }
 
 .actions button:first-child {
-    background-color: #0288d1;
+    background-color: var(--color-info);
     color: white;
 }
 
 .actions button:last-child {
-    background-color: #d32f2f;
+    background-color: var(--color-danger);
     color: white;
 }
 
@@ -156,5 +162,27 @@ const displayAmount = (amount) => {
 
 .card.expense {
     background: linear-gradient(135deg, #fdecea, #fff5f5);
+}
+
+html.dark .card.income,
+html.dark .card.expense {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .category {
+    background: rgba(255, 255, 255, 0.08) !important;
+    filter: brightness(2.5) saturate(1.2);
+}
+
+html.dark .actions button:first-child {
+    background-color: rgba(96, 165, 250, 0.2);
+    color: #60a5fa;
+}
+
+html.dark .actions button:last-child {
+    background-color: rgba(248, 113, 113, 0.2);
+    color: #f87171;
 }
 </style>

@@ -2,7 +2,7 @@
   "users": [
     {
       "id": "1",
-      "name": "테스트",
+      "name": "테스",
       "email": "test@test.com",
       "password": "test1234",
       "nickname": "",
@@ -31,6 +31,22 @@
       "email": "1234@naver.com",
       "password": "dddd1111",
       "id": "3RvO2d8Brjc"
+    },
+    {
+      "name": "가계부",
+      "nickname": "가계부",
+      "gender": "남성",
+      "email": "exam2@gmail.com",
+      "password": "bbbb2222",
+      "id": "czl9LZ_KmSI"
+    },
+    {
+      "name": "부트캠",
+      "nickname": "부트캠프",
+      "gender": "남성",
+      "email": "test2@gmail.com",
+      "password": "cccc3333",
+      "id": "KXIULk51YD4"
     }
   ],
   "transactions": [
@@ -205,17 +221,6 @@
       "userId": "2"
     },
     {
-      "userId": "1",
-      "type": "expense",
-      "amount": 14000,
-      "memo": "치킨",
-      "date": "2026-04-09",
-      "categoryName": "식비",
-      "paymentMethod": "카카오페이",
-      "note": "",
-      "id": "18"
-    },
-    {
       "id": "19",
       "date": "2026-04-10",
       "type": "income",
@@ -347,14 +352,15 @@
       "userId": "2"
     },
     {
-      "id": "35",
-      "date": "2026-04-18",
+      "userId": "1",
       "type": "expense",
-      "categoryName": "식비",
-      "amount": 12000,
+      "amount": 19500000,
       "memo": "점심",
+      "date": "2026-04-18",
+      "categoryName": "식비",
       "paymentMethod": "현금",
-      "userId": "1"
+      "note": "",
+      "id": "35"
     },
     {
       "id": "36",
@@ -683,6 +689,61 @@
       "paymentMethod": "카카오페이",
       "note": "",
       "id": "ES6WUqiQSRE"
+    },
+    {
+      "userId": "1",
+      "type": "expense",
+      "amount": 4000,
+      "memo": "커피",
+      "date": "2026-05-03",
+      "categoryName": "카페·간식",
+      "paymentMethod": "체크카드",
+      "note": "",
+      "id": "7f51UQPzrMo"
+    },
+    {
+      "userId": "1",
+      "type": "income",
+      "amount": 50000,
+      "memo": "용돈",
+      "date": "2026-04-11",
+      "categoryName": "용돈",
+      "paymentMethod": "신용카드",
+      "note": "",
+      "id": "3IwLBSZ4DWg"
+    },
+    {
+      "userId": "1",
+      "type": "expense",
+      "amount": 10000,
+      "memo": "영화",
+      "date": "2026-04-01",
+      "categoryName": "문화·여가",
+      "paymentMethod": "신용카드",
+      "note": "",
+      "id": "KTMD_qMM66Y"
+    },
+    {
+      "userId": "1",
+      "type": "income",
+      "amount": 10000,
+      "memo": "용돈많이",
+      "date": "2026-04-01",
+      "categoryName": "부업·프리랜서",
+      "paymentMethod": "신용카드",
+      "note": "용돈",
+      "id": "oyB-DisShcw"
+    },
+    {
+      "userId": "1",
+      "type": "expense",
+      "amount": 500000,
+      "memo": "간식",
+      "date": "2026-03-10",
+      "categoryName": "카페·간식",
+      "paymentMethod": "체크카드",
+      "note": "",
+      "id": "xDP8yMh2di8"
     }
   ],
   "Categories": [
