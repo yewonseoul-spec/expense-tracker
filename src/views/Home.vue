@@ -99,13 +99,15 @@
                     settingsStore.exchangeRate,
                   )
                 }}
-
-                {{ text.amount < 0 ? '0' : '' }}
               </p>
-              <!-- 나중에 카테고리 - 배지 표현 추가, 거래내역 카테고리 디자인 참조 -->
-              <!-- <span :class="['status-badge', text.status.toLowerCase()]">{{
-                text.status
-              }}</span> -->
+              <!-- 배지 표현 추가, 거래내역의 카테고리 디자인 참조 -->
+              <!-- <span
+                v-if="text.categoryName"
+                class="status-badge"
+                :style="getBadgeStyle(text.categoryName)"
+              >
+                {{ text.categoryName }}
+              </span> -->
             </div>
           </div>
         </div>
@@ -160,6 +162,21 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
 );
+
+// categories 선언
+// const categories = {
+//   수입: { bg: '#e8f5e9', color: '#2e7d32' },
+//   식비: { bg: '#fdecea', color: '#c62828' },
+//   '카페·간식': { bg: '#fff3e0', color: '#ef6c00' },
+//   교통: { bg: '#e3f2fd', color: '#1565c0' },
+//   쇼핑: { bg: '#f3e5f5', color: '#6a1b9a' },
+//   '의료·건강': { bg: '#e0f2f1', color: '#00695c' },
+//   '문화·여가': { bg: '#ede7f6', color: '#4527a0' },
+//   통신: { bg: '#e8eaf6', color: '#283593' },
+//   교육: { bg: '#e8f5e9', color: '#2e7d32' },
+//   여행: { bg: '#e1f5fe', color: '#0277bd' },
+//   기타: { bg: '#eceff1', color: '#37474f' },
+// };
 
 const props = defineProps({ isBackground: Boolean });
 
@@ -261,13 +278,13 @@ const chartData = computed(() => {
         label: '수입',
         backgroundColor: colorSuccess,
         data: incomeData,
-        borderRadius: 3,
+        borderRadius: 8,
       },
       {
         label: '지출',
         backgroundColor: colorDanger,
         data: expenseData,
-        borderRadius: 3,
+        borderRadius: 8,
       },
     ],
   };
@@ -336,9 +353,18 @@ const chartOptions = computed(() => {
   };
 });
 
+// 최근 거래 카테고리 배지 표기
+// const getBadgeStyle = (categoryName) => {
+//   const config = categories[categoryName] || categories['기타'];
+//   return {
+//     backgroundColor: config.bg,
+//     color: config.color,
+//   };
+// };
+
 // 최근 거래 내역 더보기 기능
 const isModalOpen = ref(false);
-const displayCount = ref(5); // 최근 거래내역 보여줄 갯수 지정
+const displayCount = ref(4); // 최근 거래내역 보여줄 갯수 지정
 
 // 위에서 필터링 한 filteredTransactions 사용하여 displayCount 만큼만 자르기
 const visibleTransactions = computed(() => {
@@ -353,11 +379,11 @@ const isFullList = computed(() => {
 // 더보기 버튼 클릭 시 실행할 함수
 const toggleList = () => {
   if (isFullList.value) {
-    // 모두 조회한 경우 리스트를 접고 5개로 초기화
-    displayCount.value = 5;
+    // 모두 조회한 경우 리스트를 접고 초기화
+    displayCount.value = 4;
   } else {
-    // 리스트 내역이 더 있다면 5개 추가
-    displayCount.value += 5;
+    // 리스트 내역이 더 있다면 추가
+    displayCount.value += 4;
   }
 };
 </script>
@@ -365,7 +391,6 @@ const toggleList = () => {
 <style scoped>
 /* 전체 배경 및 폰트 */
 .container {
-  min-height: 100vh;
   background-color: transparent;
   padding: 20px 20px 40px 20px;
   width: 100%;
@@ -378,7 +403,7 @@ const toggleList = () => {
   max-width: 1200px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
 }
 
 /* 카드 스타일 */
@@ -408,7 +433,7 @@ const toggleList = () => {
 /* section title */
 .section-title,
 .summary-label {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   margin-bottom: 20px;
   color: var(--text-primary);
@@ -505,7 +530,7 @@ input:focus {
 .chart-placeholder {
   height: 300px;
   background: #fdfdfd;
-  border: 1px dashed #e5e7eb;
+  border: 10px dashed #e5e7eb;
   border-radius: 12px;
 }
 /* 최근 거래내역 */
@@ -538,6 +563,22 @@ input:focus {
 }
 .positive {
   color: var(--color-success);
+}
+
+/* 배지 기본 스타일 */
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  margin-top: 4px;
+}
+/* 금액과 배지를 세로로 정렬하기 위해 부모 요소 확인 */
+.text-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 /* 최근 거래내역 더보기 버튼 */
