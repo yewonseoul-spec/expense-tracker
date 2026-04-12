@@ -256,19 +256,14 @@ const displayAmount = (amount) => {
     </div>
 
     <div class="category-filter">
-      <button
-        v-for="c in categoryList"
-        :key="c.name"
-        @click="toggleCategory(c.name)"
-        :class="{ active: selectedCategories.includes(c.name) }"
-        :style="{
+      <button v-for="c in categoryList" :key="c.name" @click="toggleCategory(c.name)"
+        :class="{ active: selectedCategories.includes(c.name) }" :style="{
           borderColor: c.color,
           background: selectedCategories.includes(c.name)
             ? c.color
             : 'transparent',
           color: selectedCategories.includes(c.name) ? '#ffffff' : c.color,
-        }"
-      >
+        }">
         {{ c.icon }} {{ c.name }}
       </button>
     </div>
@@ -281,32 +276,24 @@ const displayAmount = (amount) => {
       </div>
 
       <div class="grid">
-        <div
-          v-for="(day, index) in calendarDays"
-          :key="index"
-          class="cell"
-          @click="selectDay(day)"
-        >
+        <div v-for="(day, index) in calendarDays" :key="index" class="cell" @click="selectDay(day)">
           <div v-if="day">
             <div class="date">{{ day.day }}</div>
-            <div
-              class="total"
-              :class="{ plus: day.total > 0, minus: day.total < 0 }"
-            >
+            <div class="total" :class="{ plus: day.total > 0, minus: day.total < 0 }">
               {{ day.total !== 0 ? displayAmount(day.total) : '' }}
             </div>
             <div class="items">
-              <div
-                v-for="(t, i) in day.transactions"
-                :key="i"
-                class="item"
-                :style="{
-                  background: categories[t.categoryName]?.bg,
-                  color: categories[t.categoryName]?.color,
-                }"
-              >
+              <div v-for="(t, i) in day.transactions.slice(0, 3)" :key="i" class="item" :style="{
+                background: categories[t.categoryName]?.bg,
+                color: categories[t.categoryName]?.color,
+              }">
                 <span>{{ t.categoryName }}</span>
                 <span>{{ displayAmount(Math.abs(t.amount)) }}</span>
+              </div>
+
+              <!-- 3개 초과 시 ... 표시 -->
+              <div v-if="day.transactions.length > 3" class="more">
+                <span>+ more</span>
               </div>
             </div>
           </div>
@@ -322,24 +309,14 @@ const displayAmount = (amount) => {
         <span class="detail-date">{{ selectedDayDate?.monthDay }}</span>
         <button class="detail-close" @click="selectedDay = null">✕</button>
       </div>
-      <TransactionDetail
-        v-for="t in transactionStore.userData"
-        :key="t.id"
-        :t="t"
-        :categoryColors="getCategory(t.categoryName)"
-        :icon="getCategoryIcon(t.categoryName)"
-        @edit="openEdit"
-        @delete="handleDeleted"
-      />
+      <TransactionDetail v-for="t in transactionStore.userData" :key="t.id" :t="t"
+        :categoryColors="getCategory(t.categoryName)" :icon="getCategoryIcon(t.categoryName)" @edit="openEdit"
+        @delete="handleDeleted" />
     </div>
 
     <!-- 수정 폼 오버레이 -->
     <div v-if="editingTransaction" class="form-overlay">
-      <TransactionForm
-        :editData="editingTransaction"
-        @close="closeEdit"
-        @saved="handleSaved"
-      />
+      <TransactionForm :editData="editingTransaction" @close="closeEdit" @saved="handleSaved" />
     </div>
   </div>
 </template>
@@ -464,6 +441,13 @@ const displayAmount = (amount) => {
   display: flex;
   justify-content: space-between;
   margin-top: 2px;
+}
+
+.more {
+  font-size: 11px;
+  text-align: center;
+  margin-top: 2px;
+  opacity: 0.6;
 }
 
 .form-overlay {
