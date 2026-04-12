@@ -9,6 +9,14 @@ const formData = ref({ ...userStore.userInfo });
 
 const isLoading = ref(true);
 
+const showPasswordModal = ref(false);
+const passwordForm = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+});
+const passwordError = ref('');
+
 watch(
   () => userStore.userInfo,
   (newVal) => {
@@ -82,6 +90,50 @@ const saveProfile = async () => {
     alert('프로필 정보가 성공적으로 저장되었습니다.');
   } else {
     alert('정보 저장에 실패했습니다. 다시 시도해 주세요.');
+  }
+};
+
+const openPasswordModal = () => {
+  passwordError.value = '';
+  passwordForm.value = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  };
+  showPasswordModal.value = true;
+};
+
+const closePasswordModal = () => {
+  showPasswordModal.value = false;
+};
+
+// 비밀번호 변경 요청
+const updatePassword = async () => {
+  passwordError.value = '';
+
+  if (!passwordForm.value.currentPassword || !passwordForm.value.newPassword) {
+    passwordError.value = '모든 필드를 입력해주세요.';
+    return;
+  }
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+    passwordError.value = '새 비밀번호가 일치하지 않습니다.';
+    return;
+  }
+  if (passwordForm.value.currentPassword === passwordForm.value.newPassword) {
+    passwordError.value =
+      '새 비밀번호는 현재 비밀번호와 다르게 설정해야 합니다.';
+    return;
+  }
+  const result = await userStore.changePassword(
+    passwordForm.value.currentPassword,
+    passwordForm.value.newPassword,
+  );
+
+  if (result.success) {
+    alert('비밀번호가 성공적으로 변경되었습니다.');
+    closePasswordModal();
+  } else {
+    passwordError.value = result.message;
   }
 };
 </script>
@@ -181,7 +233,61 @@ const saveProfile = async () => {
             </select>
           </div>
         </div>
+        <br />
+        <div class="form-group">
+          <label>비밀번호</label>
+          <button
+            type="button"
+            class="btn-change-password"
+            @click="openPasswordModal"
+          >
+            비밀번호 변경하기
+          </button>
+        </div>
       </form>
+      <div
+        v-if="showPasswordModal"
+        class="modal-overlay"
+        @click.self="closePasswordModal"
+      >
+        <div class="modal-content">
+          <h3>비밀번호 변경</h3>
+
+          <div class="modal-form-group">
+            <label>현재 비밀번호</label>
+            <input
+              type="password"
+              v-model="passwordForm.currentPassword"
+              placeholder="현재 비밀번호 입력"
+            />
+          </div>
+
+          <div class="modal-form-group">
+            <label>새 비밀번호</label>
+            <input
+              type="password"
+              v-model="passwordForm.newPassword"
+              placeholder="새 비밀번호 입력"
+            />
+          </div>
+
+          <div class="modal-form-group">
+            <label>새 비밀번호 확인</label>
+            <input
+              type="password"
+              v-model="passwordForm.confirmPassword"
+              placeholder="새 비밀번호 다시 입력"
+            />
+          </div>
+
+          <p v-if="passwordError" class="error-msg">{{ passwordError }}</p>
+
+          <div class="modal-actions">
+            <button class="btn-cancel" @click="closePasswordModal">취소</button>
+            <button class="btn-save" @click="updatePassword">변경하기</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -424,5 +530,97 @@ const saveProfile = async () => {
     grid-template-columns: 1fr;
     gap: 20px;
   }
+}
+
+.btn-change-password {
+  height: 52px;
+  background: #f0f4f8;
+  color: #3e435d;
+  border: 1px solid #d2e4f6;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  padding: 0 20px;
+}
+.btn-change-password:hover {
+  background: #e2e8f0;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  width: 400px;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #1e1e1e;
+  font-size: 18px;
+}
+
+.modal-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.modal-form-group label {
+  font-size: 13px;
+  color: #666;
+}
+
+.modal-form-group input {
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.error-msg {
+  color: #e53e3e;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-cancel {
+  padding: 10px 16px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-save {
+  padding: 10px 16px;
+  background: #4182f9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 </style>
